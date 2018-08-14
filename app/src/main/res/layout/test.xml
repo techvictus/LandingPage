@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/ad_view"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="parent"
+        layout="@layout/ad_view" />
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:paddingTop="210dp"
+        android:paddingBottom="70dp"
+        android:layout_height="wrap_content">
+    <ScrollView
+        android:id="@+id/top"
+        android:layout_width="match_parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/main_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/search_for"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Search for"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textAppearance="?android:textAppearanceMedium"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <RadioGroup
+                android:id="@+id/radio_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/radio_button_one"
+                app:layout_constraintTop_toBottomOf="@id/search_for">
+
+                <RadioButton
+                    android:id="@+id/doctors_button"
+                    android:layout_width="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:layout_height="wrap_content"
+                    android:text="Doctors" />
+
+
+
+                <RadioButton
+                    android:id="@+id/test_labs_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Test-Labs" />
+
+            </RadioGroup>
+
+            <RadioGroup
+                android:id="@+id/radio_button_one"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                app:layout_constraintLeft_toRightOf="@id/radio_button"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/search_for">
+
+
+                <RadioButton
+                    android:id="@+id/pharmacies_button"
+                    android:layout_width="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:layout_height="wrap_content"
+                    android:text="Pharmacies" />
+
+                <RadioButton
+                    android:id="@+id/vitals_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Vitals" />
+
+            </RadioGroup>
+            <TextView
+                android:id="@+id/by"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/radio_button_one"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="by"/>
+            <LinearLayout
+                android:id="@+id/drop_down"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@id/by">
+
+                <Spinner
+                    android:id="@+id/spinner_one"
+                    android:layout_width="300dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/spinner_border"
+                    android:visibility="visible" />
+                <SearchView
+                    android:id="@+id/search"
+                    android:layout_gravity="center"
+                    android:layout_width="300dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/search_border"
+                    android:visibility="visible"
+                    android:layout_height="40dp">
+                </SearchView>
+            </LinearLayout>
+
+            <View
+                android:id="@+id/first"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/gredient_two"
+                app:layout_constraintTop_toBottomOf="@id/drop_down" />
+            <ImageView
+                android:id="@+id/custom_up_arrow"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:src="@drawable/custom_up_arrow"
+                android:visibility="visible"
+                app:layout_constraintTop_toBottomOf="@id/drop_down"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"/>
+
+
+            <ImageView
+                android:id="@+id/store"
+                android:layout_width="80dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                android:src="@drawable/home_visit"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/vitals"
+                app:layout_constraintTop_toBottomOf="@id/first" />
+
+            <ImageView
+                android:id="@+id/vitals"
+                android:layout_width="80dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                android:src="@drawable/second_opinion"
+                app:layout_constraintLeft_toRightOf="@id/store"
+                app:layout_constraintRight_toLeftOf="@id/hospitals"
+                app:layout_constraintTop_toBottomOf="@id/first" />
+
+            <ImageView
+                android:id="@+id/hospitals"
+                android:layout_width="80dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                android:src="@drawable/hospitals"
+                app:layout_constraintLeft_toRightOf="@id/vitals"
+                app:layout_constraintRight_toLeftOf="@id/second_opinion"
+                app:layout_constraintTop_toBottomOf="@id/first" />
+
+            <ImageView
+                android:id="@+id/second_opinion"
+                android:layout_width="80dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                android:src="@drawable/blood_bank"
+                app:layout_constraintLeft_toRightOf="@id/hospitals"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/first" />
+
+            <View
+                android:id="@+id/third"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/gredient_two"
+                app:layout_constraintBottom_toBottomOf="@id/store"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <ImageView
+                android:id="@+id/medicine_reminder"
+                android:layout_width="80dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                android:src="@drawable/alternate_medicine"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/vitals"
+                app:layout_constraintTop_toBottomOf="@id/third" />
+
+            <ImageView
+                android:id="@+id/ovulation_tracker"
+                android:layout_width="80dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                android:src="@drawable/next_level_care"
+                app:layout_constraintLeft_toRightOf="@id/medicine_reminder"
+                app:layout_constraintRight_toLeftOf="@id/home_care"
+                app:layout_constraintTop_toBottomOf="@id/third" />
+
+            <ImageView
+                android:id="@+id/home_care"
+                android:layout_width="80dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                android:src="@drawable/ovulation_tracker"
+                app:layout_constraintLeft_toRightOf="@id/ovulation_tracker"
+                app:layout_constraintRight_toLeftOf="@id/next_level_care"
+                app:layout_constraintTop_toBottomOf="@id/third" />
+
+            <ImageView
+                android:id="@+id/next_level_care"
+                android:layout_width="80dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                android:src="@drawable/reports"
+                app:layout_constraintLeft_toRightOf="@id/hospitals"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/third" />
+
+            <View
+                android:id="@+id/fourth"
+                android:layout_width="250dp"
+                android:layout_height="8dp"
+                android:background="@drawable/gredient_two"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/medicine_reminder" />
+
+            <!--<ImageView-->
+            <!--android:id="@+id/blood_bank"-->
+            <!--android:layout_width="80dp"-->
+            <!--android:layout_height="65dp"-->
+            <!--android:layout_marginTop="16dp"-->
+            <!--android:padding="4dp"-->
+            <!--android:src="@drawable/blood_bank"-->
+            <!--app:layout_constraintLeft_toLeftOf="parent"-->
+            <!--app:layout_constraintRight_toLeftOf="@id/donations"-->
+            <!--app:layout_constraintTop_toBottomOf="@id/fourth" />-->
+
+            <View
+                android:id="@+id/sixth"
+                android:layout_width="8dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="55dp"
+                android:background="@drawable/gredient_one"
+                app:layout_constraintLeft_toRightOf="@id/store"
+                app:layout_constraintRight_toLeftOf="@id/vitals"
+                app:layout_constraintTop_toBottomOf="@id/first" />
+
+            <!--<ImageView-->
+            <!--android:id="@+id/donations"-->
+            <!--android:layout_width="80dp"-->
+            <!--android:layout_height="65dp"-->
+            <!--android:layout_marginTop="16dp"-->
+            <!--android:padding="4dp"-->
+            <!--android:src="@drawable/donations"-->
+            <!--app:layout_constraintLeft_toRightOf="@id/blood_bank"-->
+            <!--app:layout_constraintRight_toLeftOf="@id/health_package"-->
+            <!--app:layout_constraintTop_toBottomOf="@id/fourth" />-->
+
+            <View
+                android:id="@+id/sevent"
+                android:layout_width="8dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="110dp"
+                android:background="@drawable/gredient_one"
+                app:layout_constraintLeft_toRightOf="@id/vitals"
+                app:layout_constraintRight_toLeftOf="@id/hospitals"
+                app:layout_constraintTop_toBottomOf="@id/first" />
+
+            <!--<ImageView-->
+            <!--android:id="@+id/health_package"-->
+            <!--android:layout_width="80dp"-->
+            <!--android:layout_height="65dp"-->
+            <!--android:layout_marginTop="16dp"-->
+            <!--android:padding="4dp"-->
+            <!--android:src="@drawable/health_package"-->
+            <!--app:layout_constraintLeft_toRightOf="@id/donations"-->
+            <!--app:layout_constraintRight_toLeftOf="@id/medicines"-->
+            <!--app:layout_constraintTop_toBottomOf="@id/fourth" />-->
+
+            <View
+                android:id="@+id/second"
+                android:layout_width="8dp"
+                android:layout_height="135dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/gredient_one"
+                app:layout_constraintLeft_toRightOf="@id/hospitals"
+                app:layout_constraintRight_toLeftOf="@id/second_opinion"
+                app:layout_constraintTop_toBottomOf="@id/first" />
+
+            <!--<ImageView-->
+            <!--android:id="@+id/medicines"-->
+            <!--android:layout_width="80dp"-->
+            <!--android:layout_height="65dp"-->
+            <!--android:layout_marginTop="16dp"-->
+            <!--android:padding="4dp"-->
+            <!--android:src="@drawable/medicines"-->
+            <!--app:layout_constraintLeft_toRightOf="@id/health_package"-->
+            <!--app:layout_constraintRight_toRightOf="parent"-->
+            <!--app:layout_constraintTop_toBottomOf="@id/fourth" />-->
+
+            <!--<View-->
+            <!--android:id="@+id/fifth"-->
+            <!--android:layout_width="310dp"-->
+            <!--android:layout_height="8dp"-->
+            <!--android:background="@drawable/gredient_two"-->
+            <!--app:layout_constraintLeft_toLeftOf="parent"-->
+            <!--app:layout_constraintTop_toBottomOf="@id/blood_bank" />-->
+
+            <TextView
+                android:id="@+id/q"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Hello World!"
+                android:textSize="100sp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/sevent" />
+
+            <!--<TextView-->
+            <!--android:id="@+id/w"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Hello World!"-->
+            <!--android:textSize="50sp"-->
+                <!--android:visibility="visible"-->
+            <!--app:layout_constraintTop_toBottomOf="@id/q" />-->
+
+            <!--<TextView-->
+            <!--android:id="@+id/e"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Hello World!"-->
+            <!--android:textSize="50sp"-->
+            <!--app:layout_constraintTop_toBottomOf="@id/w" />-->
+
+            <!--<TextView-->
+            <!--android:id="@+id/f"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Hello World!"-->
+            <!--android:textSize="50sp"-->
+            <!--app:layout_constraintTop_toBottomOf="@id/e" />-->
+
+            <!--<TextView-->
+            <!--android:id="@+id/g"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Hello World!"-->
+            <!--android:textSize="50sp"-->
+            <!--app:layout_constraintTop_toBottomOf="@id/f" />-->
+
+        </android.support.constraint.ConstraintLayout>
+    </ScrollView>
+    </android.support.constraint.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/emergency"
+        android:layout_width="75dp"
+        android:layout_height="65dp"
+        android:layout_marginLeft="8dp"
+        android:src="@drawable/emergency"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/activities" />
+
+    <ImageView
+        android:id="@+id/activities"
+        android:layout_width="75dp"
+        android:layout_height="65dp"
+        android:src="@drawable/activities"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/emergency"
+        app:layout_constraintRight_toLeftOf="@id/home" />
+
+    <ImageView
+        android:id="@+id/home"
+        android:layout_width="75dp"
+        android:layout_height="65dp"
+        android:src="@drawable/home"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/activities"
+        app:layout_constraintRight_toLeftOf="@id/inbox" />
+
+    <ImageView
+        android:id="@+id/inbox"
+        android:layout_width="75dp"
+        android:layout_height="65dp"
+
+        android:src="@drawable/inbox"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/home"
+        app:layout_constraintRight_toLeftOf="@id/notifications" />
+
+    <ImageView
+        android:id="@+id/notifications"
+        android:layout_width="75dp"
+        android:layout_height="65dp"
+        android:layout_marginRight="8dp"
+        android:src="@drawable/notifications"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/inbox"
+        app:layout_constraintRight_toRightOf="parent" />
+
+</android.support.constraint.ConstraintLayout>
