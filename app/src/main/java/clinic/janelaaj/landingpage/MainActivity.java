@@ -2,14 +2,16 @@ package clinic.janelaaj.landingpage;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,26 +20,52 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.support.v7.app.ActionBarDrawerToggle;
-
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import clinic.janelaaj.landingpage.HorizontalRecyclerViewAdapter;
+import clinic.janelaaj.landingpage.ImageModel;
+import clinic.janelaaj.landingpage.ListActivity;
+import clinic.janelaaj.landingpage.R;
+
+import static org.apache.http.protocol.HTTP.USER_AGENT;
+
+
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
-
+    private String cityName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -52,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (android.os.Build.VERSION.SDK_INT > 15)
+        {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
@@ -114,12 +147,62 @@ public class MainActivity extends AppCompatActivity {
         mHorizontalRecyclerView.setLayoutManager(horizontalLayoutManager);
         mHorizontalRecyclerView.setAdapter(horizontalAdapter);
 
-        ImageView inbox = (ImageView) findViewById(R.id.inbox);
+        final ImageView inbox = (ImageView) findViewById(R.id.inbox);
         inbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent profileListIntent=new Intent(MainActivity.this,ListActivity.class);
                 startActivity(profileListIntent);
+            }
+        });
+
+        final Spinner citySpinner = (Spinner) findViewById(R.id.city_spinner);
+
+        String[] city = new String[]{
+                "NEW DELHI",
+                "GURUGRAM",
+                "NOIDA",
+                "FARIDABAD",
+                "MEERUT",
+                "JAIPUR",
+                "BENGULURU",
+                "CHENNAI",
+                "PUNE",
+                "KOLKATA",
+                "HYDERABAD",
+        };
+        final List<String> citySpinnerList = new ArrayList<>(Arrays.asList(city));
+
+// Initializing an ArrayAdapter
+        final ArrayAdapter<String> citySpinnerArrayAdapter = new ArrayAdapter<String>(
+                this, R.layout.spinner_item,citySpinnerList){
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                return view;
+            }
+        };
+        citySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+        citySpinner.setAdapter(citySpinnerArrayAdapter);
+
+        citySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = (String) parent.getItemAtPosition(position);
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                // Notify the selected item text
+                Toast.makeText
+                        (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                        .show();
+                cityName=selectedItemText;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
@@ -129,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
          */
 
         final TextView by = (TextView) findViewById(R.id.by);
-        final SearchView searchView = (SearchView) findViewById(R.id.search);
+        final Spinner searchView = (Spinner) findViewById(R.id.search);
         final ImageView collapseDropDown = (ImageView) findViewById(R.id.custom_up_arrow);
         final Spinner spinner = (Spinner) findViewById(R.id.spinner_one);
         final LinearLayout expandDropDown = (LinearLayout) findViewById(R.id.drop_down);
@@ -217,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initializing an ArrayAdapter
         final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
-                this,R.layout.spinner_item,spinnerList){
+                this, R.layout.spinner_item,spinnerList){
             @Override
             public boolean isEnabled(int position){
                 if(position == 0)
@@ -251,7 +334,7 @@ public class MainActivity extends AppCompatActivity {
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id){
                 String selectedItemText = (String) parent.getItemAtPosition(position);
                 // If user change the default selection
                 // First item is disable and it is used for hint
@@ -260,6 +343,224 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText
                             (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                             .show();
+                    if(selectedItemText.equals("Location")){
+                        JSONObject js = new JSONObject();
+                        try {
+                            js.put("cityname", cityName);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        String url = "http://35.200.243.43:3000/getlocality";
+                        DefaultHttpClient httpClient = new DefaultHttpClient();
+                        HttpPost httpPost = new HttpPost(url);
+                        StringEntity entity = null;
+                        try {
+                            entity = new StringEntity(js.toString(), HTTP.UTF_8);
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+
+                        //Setting the content type is very important
+                        assert entity != null;
+                        //entity.setContentEncoding(HTTP.UTF_8);
+                        entity.setContentType("application/json");
+                        httpPost.setEntity(entity);
+                        //Execute and get the response.
+                        try {
+
+                            HttpResponse response = httpClient.execute(httpPost);
+                            String json_string = EntityUtils.toString(response.getEntity());
+                            JSONObject temp1 = new JSONObject(json_string);
+
+                            JSONArray info = temp1.getJSONArray("info");
+                            String[] localities = new String[info.length()+1];
+                            if(info.length()==0){
+                                localities[0]="Coming Soon!";
+                            }
+                            else{
+                                localities[0]="Select nearest locality";
+                            }
+                            for(int i=0;i<info.length();i++) {
+                                JSONObject localityList = info.getJSONObject(i);
+                                String localityName = localityList.getString("llocalityname");
+                                localities[i+1]=localityName;
+                            }
+                                final List<String> LocalitySpinnerList = new ArrayList<>(Arrays.asList(localities));
+
+                                // Initializing an ArrayAdapter
+                                final ArrayAdapter<String> LocalitySpinnerArrayAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.spinner_item,LocalitySpinnerList){
+                                    @Override
+                                    public boolean isEnabled(int position){
+                                        return position != 0;
+                                    }
+                                    @Override
+                                    public View getDropDownView(int position, View convertView,
+                                                                ViewGroup parent) {
+                                        View view = super.getDropDownView(position, convertView, parent);
+                                        TextView tv = (TextView) view;
+                                        if(position == 0){
+                                            // Set the hint text color gray
+                                            tv.setTextColor(Color.GRAY);
+                                        }
+                                        else {
+                                            tv.setTextColor(Color.BLACK);
+                                        }
+                                        return view;
+                                    }
+                                };
+                                LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+                                searchView.setAdapter(LocalitySpinnerArrayAdapter);
+
+                                searchView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                    @Override
+                                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                        String selectedItemText = (String) parent.getItemAtPosition(position);
+                                        // If user change the default selection
+                                        // First item is disable and it is used for hint
+                                        // Notify the selected item text
+                                        Toast.makeText
+                                                (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                                                .show();
+                                    }
+
+                                    @Override
+                                    public void onNothingSelected(AdapterView<?> parent) {
+
+                                    }
+                                });
+
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+//                        URL url = null;
+//                        try {
+//                            url = new URL("http://35.200.243.43:3000/getlocality");
+//                        } catch (MalformedURLException e) {
+//                            e.printStackTrace();
+//                        }
+//                        HttpURLConnection conn = null;
+//                        try {
+//                            assert url != null;
+//                            conn = (HttpURLConnection)url.openConnection();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        if ( conn != null ) {
+//                            //Whatever you wants to post...
+//                            String strPostData = "CityName="+"New Delhi";
+//
+//                            try {
+//                                conn.setRequestMethod("POST");
+//                            } catch (ProtocolException e) {
+//                                e.printStackTrace();
+//                            }
+//                            conn.setRequestProperty("User-Agent", USER_AGENT);
+//                            conn.setRequestProperty("Accept-Language", "en-GB,en;q=0.5");
+//                            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+//                            conn.setRequestProperty("Content-length", Integer.toString(strPostData.length()));
+//                            conn.setRequestProperty("Content-Language", "en-GB");
+//                            conn.setRequestProperty("charset", "utf-8");
+//                            conn.setUseCaches(false);
+//                            conn.setDoOutput(true);
+//
+//                            DataOutputStream dos = null;
+//                            try {
+//                                dos = new DataOutputStream(conn.getOutputStream());
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                            try {
+//                                assert dos != null;
+//                                dos.writeBytes(strPostData);
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                            try {
+//                                dos.flush();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                            try {
+//                                dos.close();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                            int intResponse = 0;
+//                            try {
+//                                intResponse = conn.getResponseCode();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                            System.out.println("\nSending 'POST' to " + url.toString() +
+//                                    ", data: " + strPostData + ", rc: " + intResponse);;
+//                        }
+//                    }
+//                        String city = null;
+//                        try {
+//                            city = URLEncoder.encode("New Delhi", "UTF-8");
+//                        } catch (UnsupportedEncodingException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        URL url = null;
+//                        try {
+//                            url = new URL("http://35.200.243.43:3000/getlocality");
+//                            Log.d("Main","Ok");
+//                        } catch (MalformedURLException e) {
+//                            e.printStackTrace();
+//                        }
+//                        URLConnection connection = null;
+//                        try {
+//                            assert url != null;
+//                            connection = url.openConnection();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        assert connection != null;
+//                        connection.setDoOutput(true);
+//
+//                        OutputStreamWriter out = null;
+//                        try {
+//                            out = new OutputStreamWriter(
+//                                    connection.getOutputStream());
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        try {
+//                            out.write("CityName=" + city);
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        try {
+//                            out.close();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        BufferedReader in = null;
+//                        try {
+//                            in = new BufferedReader(
+//                                    new InputStreamReader(
+//                                            connection.getInputStream()));
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        String decodedString=null;
+//                        assert in != null;
+//                        try {
+//                            while ((decodedString = in.readLine()) != null) {
+//                                System.out.println(decodedString);
+//                            }
+//                        }catch (IOException){
+//
+//                        }
+//                    }
 
                 }
             }

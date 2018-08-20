@@ -142,14 +142,14 @@
                             android:background="@drawable/spinner_border"
                             android:visibility="visible" />
 
-                        <SearchView
+                        <Spinner
                             android:id="@+id/search"
                             android:layout_width="300dp"
                             android:layout_height="45dp"
                             android:layout_gravity="center"
                             android:layout_marginTop="6dp"
-                            android:background="@drawable/search_border"
-                            android:visibility="visible"></SearchView>
+                            android:background="@drawable/spinner_border"
+                            android:visibility="visible"/>
                     </LinearLayout>
 
                     <View
