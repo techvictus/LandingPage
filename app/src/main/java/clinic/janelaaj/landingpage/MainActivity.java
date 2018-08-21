@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,51 +23,42 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import clinic.janelaaj.landingpage.HorizontalRecyclerViewAdapter;
-import clinic.janelaaj.landingpage.ImageModel;
-import clinic.janelaaj.landingpage.ListActivity;
-import clinic.janelaaj.landingpage.R;
 
-import static org.apache.http.protocol.HTTP.USER_AGENT;
+/**
+ * Welcome! Add yourself in chronological order.
+ *
+ * @author Sambit Mallick (sambit-m)
+ * Experience level: n00b
+ * Created by Sambit Mallick on 13.08.2018
+ * Initial commit by sambit-m on 17.08.2018
+ */
 
 
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
     private String cityName;
-    private String selectedParam;
+    private String paramSelectedLocality;
     private String spinnerSelectedItem;
+    private JSONArray lists;
+    private double latitude;
+    private double longitude;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -83,8 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (android.os.Build.VERSION.SDK_INT > 15)
-        {
+        if (android.os.Build.VERSION.SDK_INT > 15) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
@@ -131,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        ImageView menu =(ImageView) findViewById(R.id.ham_menu);
+        ImageView menu = (ImageView) findViewById(R.id.ham_menu);
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -167,9 +156,9 @@ public class MainActivity extends AppCompatActivity {
         };
         final List<String> citySpinnerList = new ArrayList<>(Arrays.asList(city));
 
-// Initializing an ArrayAdapter
+        // Initializing an ArrayAdapter
         final ArrayAdapter<String> citySpinnerArrayAdapter = new ArrayAdapter<String>(
-                this, R.layout.spinner_item,citySpinnerList){
+                this, R.layout.spinner_item, citySpinnerList) {
             @Override
             public View getDropDownView(int position, View convertView,
                                         ViewGroup parent) {
@@ -191,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText
                         (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                         .show();
-                cityName=selectedItemText;
+                cityName = selectedItemText;
             }
 
             @Override
@@ -274,7 +263,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
         collapseDropDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -294,30 +282,27 @@ public class MainActivity extends AppCompatActivity {
 
         // Initializing an ArrayAdapter
         final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
-                this, R.layout.spinner_item,spinnerList){
+                this, R.layout.spinner_item, spinnerList) {
             @Override
-            public boolean isEnabled(int position){
-                if(position == 0)
-                {
+            public boolean isEnabled(int position) {
+                if (position == 0) {
                     // Disable the first item from Spinner
                     // First item will be use for hint
                     return false;
-                }
-                else
-                {
+                } else {
                     return true;
                 }
             }
+
             @Override
             public View getDropDownView(int position, View convertView,
                                         ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
                 TextView tv = (TextView) view;
-                if(position == 0){
+                if (position == 0) {
                     // Set the hint text color gray
                     tv.setTextColor(Color.GRAY);
-                }
-                else {
+                } else {
                     tv.setTextColor(Color.BLACK);
                 }
                 return view;
@@ -328,25 +313,24 @@ public class MainActivity extends AppCompatActivity {
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id){
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItemText = (String) parent.getItemAtPosition(position);
                 // If user change the default selection
                 // First item is disable and it is used for hint
-                if(position > 0){
+                if (position > 0) {
                     // Notify the selected item text
                     Toast.makeText
                             (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                             .show();
                     spinnerSelectedItem = selectedItemText;
 
-                    if(selectedItemText.equals("Location")){
+                    if (selectedItemText.equals("Location")) {
                         JSONObject js = new JSONObject();
                         try {
                             js.put("cityname", cityName);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
                         String url;
                         url = Endpoints.BASE_URL + Endpoints.GET_LOCALITY;
 
@@ -361,76 +345,97 @@ public class MainActivity extends AppCompatActivity {
 
                         JSONArray info = null;
                         try {
+                            assert temp1 != null;
                             info = temp1.getJSONArray("info");
+                            lists = info;
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
-                        String[] localities = new String[info.length()+1];
-                            if(info.length()==0){
-                                localities[0]="Coming Soon!";
+                        String[] localities = new String[info.length() + 1];
+                        if (info.length() == 0) {
+                            localities[0] = "Coming Soon!";
+                        } else {
+                            localities[0] = "Select nearest locality";
+                        }
+                        for (int i = 0; i < info.length(); i++) {
+                            JSONObject localityList = null;
+                            try {
+                                localityList = info.getJSONObject(i);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                            else{
-                                localities[0]="Select nearest locality";
+                            String localityName = null;
+                            try {
+                                localityName = localityList.getString("llocalityname");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                            for(int i=0;i<info.length();i++) {
-                                JSONObject localityList = null;
-                                try {
-                                    localityList = info.getJSONObject(i);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                            localities[i + 1] = localityName;
+                        }
+                        final List<String> LocalitySpinnerList = new ArrayList<>(Arrays.asList(localities));
+
+                        // Initializing an ArrayAdapter
+                        final ArrayAdapter<String> LocalitySpinnerArrayAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.spinner_item, LocalitySpinnerList) {
+                            @Override
+                            public boolean isEnabled(int position) {
+                                return position != 0;
+                            }
+
+                            @Override
+                            public View getDropDownView(int position, View convertView,
+                                                        ViewGroup parent) {
+                                View view = super.getDropDownView(position, convertView, parent);
+                                TextView tv = (TextView) view;
+                                if (position == 0) {
+                                    // Set the hint text color gray
+                                    tv.setTextColor(Color.GRAY);
+                                } else {
+                                    tv.setTextColor(Color.BLACK);
                                 }
-                                String localityName = null;
-                                try {
-                                    localityName = localityList.getString("llocalityname");
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                localities[i+1]=localityName;
+                                return view;
                             }
-                                final List<String> LocalitySpinnerList = new ArrayList<>(Arrays.asList(localities));
+                        };
+                        LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+                        searchView.setAdapter(LocalitySpinnerArrayAdapter);
 
-                                // Initializing an ArrayAdapter
-                                final ArrayAdapter<String> LocalitySpinnerArrayAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.spinner_item,LocalitySpinnerList){
-                                    @Override
-                                    public boolean isEnabled(int position){
-                                        return position != 0;
+                        searchView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                String selectedItemText = (String) parent.getItemAtPosition(position);
+                                // If user change the default selection
+                                // First item is disable and it is used for hint
+                                // Notify the selected item text
+                                Toast.makeText
+                                        (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                                        .show();
+                                paramSelectedLocality = selectedItemText;
+                                for (int i = 0; i < lists.length(); i++) {
+                                    JSONObject localityList = null;
+                                    try {
+                                        localityList = lists.getJSONObject(i);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-                                    @Override
-                                    public View getDropDownView(int position, View convertView,
-                                                                ViewGroup parent) {
-                                        View view = super.getDropDownView(position, convertView, parent);
-                                        TextView tv = (TextView) view;
-                                        if(position == 0){
-                                            // Set the hint text color gray
-                                            tv.setTextColor(Color.GRAY);
-                                        }
-                                        else {
-                                            tv.setTextColor(Color.BLACK);
-                                        }
-                                        return view;
+                                    String localityName = null;
+                                    try {
+                                        assert localityList != null;
+                                        localityName = localityList.getString("llocalityname");
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-                                };
-                                LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
-                                searchView.setAdapter(LocalitySpinnerArrayAdapter);
+                                    if(paramSelectedLocality.equals(localityName)){
+                                        latitude = Double.parseDouble(localityList.optString("llocality_lat"));
+                                        longitude = Double.parseDouble(localityList.optString("llocality_long"));
+                                    }
+                                }
+                            }
 
-                                searchView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                    @Override
-                                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                        String selectedItemText = (String) parent.getItemAtPosition(position);
-                                        // If user change the default selection
-                                        // First item is disable and it is used for hint
-                                        // Notify the selected item text
-                                        Toast.makeText
-                                                (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
-                                                .show();
-                                        selectedParam=selectedItemText;
-                                    }
-                                    @Override
-                                    public void onNothingSelected(AdapterView<?> parent) {
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
 
-                                    }
-                                });
+                            }
+                        });
 
 //
 //                        } catch (IOException e) {
@@ -579,10 +584,12 @@ public class MainActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent profileListIntent=new Intent(MainActivity.this,ListActivity.class);
+                Intent profileListIntent = new Intent(MainActivity.this, ListActivity.class);
                 profileListIntent.putExtra("CityName", cityName);
                 profileListIntent.putExtra("SpinnerSelectedItem", spinnerSelectedItem);
-                profileListIntent.putExtra("SelectedParam", selectedParam);
+                profileListIntent.putExtra("paramSelectedLocality", paramSelectedLocality);
+                profileListIntent.putExtra("paramLatitude",latitude);
+                profileListIntent.putExtra("paramLongitude",longitude);
                 startActivity(profileListIntent);
             }
         });

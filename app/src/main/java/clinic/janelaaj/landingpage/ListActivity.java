@@ -1,12 +1,13 @@
 package clinic.janelaaj.landingpage;
 
+import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
-import android.app.Activity;
 
-
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -18,7 +19,23 @@ import android.widget.TextView;
 import android.support.v7.app.AlertDialog;
 
 
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * This {@link ListActivity} is to show the list of doctors using
+ * ListView with the help of {@link Profile} and {@link ProfileAdapter}
+ *
+ * @author Sambit Mallick (sambit-m)
+ * Created by Sambit Mallick on 16.08.2018
+ */
 
 public class ListActivity extends AppCompatActivity {
 
@@ -34,24 +51,100 @@ public class ListActivity extends AppCompatActivity {
         this.setContentView(R.layout.activity_list);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+        if (android.os.Build.VERSION.SDK_INT > 15) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
 
+        Intent intent = getIntent();
+        String cityName = intent.getExtras().getString("CityName");
+        String spinnerSelectedItem = intent.getExtras().getString("SpinnerSelectedItem");
+        String selectedParam = intent.getExtras().getString("paramSelectedLocality");
+
+
+        LatLng locationPoint;
+        String address;
+        double longitude;
+        double latitude;
+        if (selectedParam != null && !selectedParam.equals("Select nearest locality")) {
+            longitude = intent.getExtras().getDouble("paramLatitude");
+            latitude = intent.getExtras().getDouble("paramLongitude");
+        } else {
+            address = cityName;
+            locationPoint = getLocationFromAddress(ListActivity.this, address);
+            longitude = locationPoint.longitude;
+            latitude = locationPoint.latitude;
+            selectedParam = "Not Selected";
+        }
+
+        JSONObject js = new JSONObject();
+        try {
+            js.put("cityname", cityName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            js.put("localityname", selectedParam);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            js.put("localitylat", latitude);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            js.put("localitylong", longitude);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String url;
+        url = Endpoints.BASE_URL + Endpoints.GET_DOCTORS_BY_LOCATION;
+        JSONObject doctorsList = null;
+        try {
+            doctorsList = ConnectionUtil.postMethod(url, js);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JSONArray ldoctorid = null;
+        try {
+            assert doctorsList != null;
+            ldoctorid = doctorsList.getJSONArray("info");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ArrayList<Profile> profiles = new ArrayList<>();
+        for (int i = 0; i < ldoctorid.length(); i++) {
+            JSONObject result = null;
+            try {
+                result = ldoctorid.getJSONObject(i);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            assert result != null;
+            String profileName = result.optString("ldoctorname");
+            profiles.add(new Profile(profileName));
+        }
         ImageView inbox = (ImageView) findViewById(R.id.inbox);
         inbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent landingPageIntent=new Intent(ListActivity.this,MainActivity.class);
+                Intent landingPageIntent = new Intent(ListActivity.this, MainActivity.class);
                 startActivity(landingPageIntent);
             }
         });
 
-        ArrayList<Profile> profiles = new ArrayList<>();
-        profiles.add(new Profile("a"));
-        profiles.add(new Profile("b"));
-        profiles.add(new Profile("c"));
-        profiles.add(new Profile("d"));
-        profiles.add(new Profile("e"));
-        profiles.add(new Profile("f"));
-        profiles.add(new Profile("g"));
+//        profiles.add(new Profile("a"));
+//        profiles.add(new Profile("b"));
+//        profiles.add(new Profile("c"));
+//        profiles.add(new Profile("d"));
+//        profiles.add(new Profile("e"));
+//        profiles.add(new Profile("f"));
+//        profiles.add(new Profile("g"));
         ProfileAdapter adapter = new ProfileAdapter(this, profiles);
         ListView profileListView = (ListView) findViewById(R.id.list);
         profileListView.setAdapter(adapter);
@@ -130,5 +223,26 @@ public class ListActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
+    }
+
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
+
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
+        LatLng p1 = null;
+        try {
+            // May throw an IOException
+            address = coder.getFromLocationName(strAddress, 5);
+            if (address == null) {
+                return null;
+            }
+            if (address.size() > 0) {
+                Address location = address.get(0);
+                p1 = new LatLng(location.getLatitude(), location.getLongitude());
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return p1;
     }
 }

@@ -12,6 +12,13 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+/**
+ *  Methods of {@link ConnectionUtil} is used to connect {@link Endpoints}
+ *
+ *  @author Sambit Mallick (sambit-m)
+ *  Created by Sambit Mallick on 20.08.2018
+ */
+
 public class ConnectionUtil {
 
     /**
