@@ -20,6 +20,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
     private String cityName;
+    private String selectedParam;
+    private String spinnerSelectedItem;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -147,18 +150,9 @@ public class MainActivity extends AppCompatActivity {
         mHorizontalRecyclerView.setLayoutManager(horizontalLayoutManager);
         mHorizontalRecyclerView.setAdapter(horizontalAdapter);
 
-        final ImageView inbox = (ImageView) findViewById(R.id.inbox);
-        inbox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent profileListIntent=new Intent(MainActivity.this,ListActivity.class);
-                startActivity(profileListIntent);
-            }
-        });
-
         final Spinner citySpinner = (Spinner) findViewById(R.id.city_spinner);
 
-        String[] city = new String[]{
+        final String[] city = new String[]{
                 "NEW DELHI",
                 "GURUGRAM",
                 "NOIDA",
@@ -343,6 +337,8 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText
                             (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                             .show();
+                    spinnerSelectedItem = selectedItemText;
+
                     if(selectedItemText.equals("Location")){
                         JSONObject js = new JSONObject();
                         try {
@@ -350,30 +346,27 @@ public class MainActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        String url = "http://35.200.243.43:3000/getlocality";
-                        DefaultHttpClient httpClient = new DefaultHttpClient();
-                        HttpPost httpPost = new HttpPost(url);
-                        StringEntity entity = null;
+
+                        String url;
+                        url = Endpoints.BASE_URL + Endpoints.GET_LOCALITY;
+
+                        JSONObject temp1 = null;
                         try {
-                            entity = new StringEntity(js.toString(), HTTP.UTF_8);
-                        } catch (UnsupportedEncodingException e) {
+                            temp1 = ConnectionUtil.postMethod(url, js);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
-                        //Setting the content type is very important
-                        assert entity != null;
-                        //entity.setContentEncoding(HTTP.UTF_8);
-                        entity.setContentType("application/json");
-                        httpPost.setEntity(entity);
-                        //Execute and get the response.
+                        JSONArray info = null;
                         try {
+                            info = temp1.getJSONArray("info");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
 
-                            HttpResponse response = httpClient.execute(httpPost);
-                            String json_string = EntityUtils.toString(response.getEntity());
-                            JSONObject temp1 = new JSONObject(json_string);
-
-                            JSONArray info = temp1.getJSONArray("info");
-                            String[] localities = new String[info.length()+1];
+                        String[] localities = new String[info.length()+1];
                             if(info.length()==0){
                                 localities[0]="Coming Soon!";
                             }
@@ -381,8 +374,18 @@ public class MainActivity extends AppCompatActivity {
                                 localities[0]="Select nearest locality";
                             }
                             for(int i=0;i<info.length();i++) {
-                                JSONObject localityList = info.getJSONObject(i);
-                                String localityName = localityList.getString("llocalityname");
+                                JSONObject localityList = null;
+                                try {
+                                    localityList = info.getJSONObject(i);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                String localityName = null;
+                                try {
+                                    localityName = localityList.getString("llocalityname");
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                                 localities[i+1]=localityName;
                             }
                                 final List<String> LocalitySpinnerList = new ArrayList<>(Arrays.asList(localities));
@@ -421,21 +424,22 @@ public class MainActivity extends AppCompatActivity {
                                         Toast.makeText
                                                 (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                                                 .show();
+                                        selectedParam=selectedItemText;
                                     }
-
                                     @Override
                                     public void onNothingSelected(AdapterView<?> parent) {
 
                                     }
                                 });
 
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+//
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
                     }
+
 //                        URL url = null;
 //                        try {
 //                            url = new URL("http://35.200.243.43:3000/getlocality");
@@ -568,6 +572,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
+            }
+        });
+
+        final ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent profileListIntent=new Intent(MainActivity.this,ListActivity.class);
+                profileListIntent.putExtra("CityName", cityName);
+                profileListIntent.putExtra("SpinnerSelectedItem", spinnerSelectedItem);
+                profileListIntent.putExtra("SelectedParam", selectedParam);
+                startActivity(profileListIntent);
             }
         });
     }

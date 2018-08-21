@@ -20,8 +20,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:menu="@menu/drawer_view"
-        app:headerLayout="@layout/nav_header"/>
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/drawer_view" />
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -142,21 +142,40 @@
                             android:background="@drawable/spinner_border"
                             android:visibility="visible" />
 
-                        <Spinner
-                            android:id="@+id/search"
-                            android:layout_width="300dp"
-                            android:layout_height="45dp"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="6dp"
-                            android:background="@drawable/spinner_border"
-                            android:visibility="visible"/>
+                        <LinearLayout
+                            android:id="@+id/search_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="55dp"
+                            android:gravity="center"
+                            android:layout_marginTop="4dp"
+                            android:orientation="horizontal"
+                            android:visibility="visible">
+
+                            <Spinner
+                                android:id="@+id/search"
+                                android:layout_width="250dp"
+                                android:layout_height="45dp"
+                                android:layout_gravity="center"
+                                android:background="@drawable/spinner_border"
+                                android:visibility="visible" />
+
+                            <ImageButton
+                                android:id="@+id/search_button"
+                                android:layout_gravity="center_vertical"
+                                android:layout_width="50dp"
+                                android:scaleType="center"
+                                android:layout_height="wrap_content"
+                                android:elevation="4dp"
+                                android:src="@drawable/baseline_search_black_36"
+                                android:visibility="visible"/>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <View
                         android:id="@+id/first"
                         android:layout_width="match_parent"
                         android:layout_height="8dp"
-                        android:layout_marginTop="15dp"
+                        android:layout_marginTop="20dp"
                         android:background="@drawable/gredient_two"
                         app:layout_constraintTop_toBottomOf="@id/drop_down" />
 
