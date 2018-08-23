@@ -1,9 +1,11 @@
 package clinic.janelaaj.landingpage;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
+
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -27,7 +29,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
     private JSONArray lists;
     private double latitude;
     private double longitude;
+    private JSONObject jsonResponse;
+    private ProgressDialog progressDialog;
+    private Spinner searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (android.os.Build.VERSION.SDK_INT > 15) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
          */
 
         final TextView by = (TextView) findViewById(R.id.by);
-        final Spinner searchView = (Spinner) findViewById(R.id.search);
+        searchView = (Spinner) findViewById(R.id.search);
         final ImageView collapseDropDown = (ImageView) findViewById(R.id.custom_up_arrow);
         final Spinner spinner = (Spinner) findViewById(R.id.spinner_one);
         final LinearLayout expandDropDown = (LinearLayout) findViewById(R.id.drop_down);
@@ -331,111 +331,104 @@ public class MainActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        String jsString = js.toString();
                         String url;
                         url = Endpoints.BASE_URL + Endpoints.GET_LOCALITY;
-
-                        JSONObject temp1 = null;
-                        try {
-                            temp1 = ConnectionUtil.postMethod(url, js);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        JSONArray info = null;
-                        try {
-                            assert temp1 != null;
-                            info = temp1.getJSONArray("info");
-                            lists = info;
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        String[] localities = new String[info.length() + 1];
-                        if (info.length() == 0) {
-                            localities[0] = "Coming Soon!";
-                        } else {
-                            localities[0] = "Select nearest locality";
-                        }
-                        for (int i = 0; i < info.length(); i++) {
-                            JSONObject localityList = null;
-                            try {
-                                localityList = info.getJSONObject(i);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            String localityName = null;
-                            try {
-                                localityName = localityList.getString("llocalityname");
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            localities[i + 1] = localityName;
-                        }
-                        final List<String> LocalitySpinnerList = new ArrayList<>(Arrays.asList(localities));
-
-                        // Initializing an ArrayAdapter
-                        final ArrayAdapter<String> LocalitySpinnerArrayAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.spinner_item, LocalitySpinnerList) {
-                            @Override
-                            public boolean isEnabled(int position) {
-                                return position != 0;
-                            }
-
-                            @Override
-                            public View getDropDownView(int position, View convertView,
-                                                        ViewGroup parent) {
-                                View view = super.getDropDownView(position, convertView, parent);
-                                TextView tv = (TextView) view;
-                                if (position == 0) {
-                                    // Set the hint text color gray
-                                    tv.setTextColor(Color.GRAY);
-                                } else {
-                                    tv.setTextColor(Color.BLACK);
-                                }
-                                return view;
-                            }
-                        };
-                        LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
-                        searchView.setAdapter(LocalitySpinnerArrayAdapter);
-
-                        searchView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                String selectedItemText = (String) parent.getItemAtPosition(position);
-                                // If user change the default selection
-                                // First item is disable and it is used for hint
-                                // Notify the selected item text
-                                Toast.makeText
-                                        (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
-                                        .show();
-                                paramSelectedLocality = selectedItemText;
-                                for (int i = 0; i < lists.length(); i++) {
-                                    JSONObject localityList = null;
-                                    try {
-                                        localityList = lists.getJSONObject(i);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    String localityName = null;
-                                    try {
-                                        assert localityList != null;
-                                        localityName = localityList.getString("llocalityname");
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    if(paramSelectedLocality.equals(localityName)){
-                                        latitude = Double.parseDouble(localityList.optString("llocality_lat"));
-                                        longitude = Double.parseDouble(localityList.optString("llocality_long"));
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-
-                            }
-                        });
+                        ConnectionAsyncTask task = new ConnectionAsyncTask();
+                        task.execute(url,jsString);
+//                        JSONArray info = null;
+//                        try {
+//                            assert jsonResponse != null;
+//                            info = jsonResponse.getJSONArray("info");
+//                            lists = info;
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        String[] localities = new String[info.length() + 1];
+//                        if (info.length() == 0) {
+//                            localities[0] = "Coming Soon!";
+//                        } else {
+//                            localities[0] = "Select nearest locality";
+//                        }
+//                        for (int i = 0; i < info.length(); i++) {
+//                            JSONObject localityList = null;
+//                            try {
+//                                localityList = info.getJSONObject(i);
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//                            String localityName = null;
+//                            try {
+//                                localityName = localityList.getString("llocalityname");
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//                            localities[i + 1] = localityName;
+//                        }
+//                        final List<String> LocalitySpinnerList = new ArrayList<>(Arrays.asList(localities));
+//
+//                        // Initializing an ArrayAdapter
+//                        final ArrayAdapter<String> LocalitySpinnerArrayAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.spinner_item, LocalitySpinnerList) {
+//                            @Override
+//                            public boolean isEnabled(int position) {
+//                                return position != 0;
+//                            }
+//
+//                            @Override
+//                            public View getDropDownView(int position, View convertView,
+//                                                        ViewGroup parent) {
+//                                View view = super.getDropDownView(position, convertView, parent);
+//                                TextView tv = (TextView) view;
+//                                if (position == 0) {
+//                                    // Set the hint text color gray
+//                                    tv.setTextColor(Color.GRAY);
+//                                } else {
+//                                    tv.setTextColor(Color.BLACK);
+//                                }
+//                                return view;
+//                            }
+//                        };
+//                        LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+//                        searchView.setAdapter(LocalitySpinnerArrayAdapter);
+//
+//                        searchView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//                            @Override
+//                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                                String selectedItemText = (String) parent.getItemAtPosition(position);
+//                                // If user change the default selection
+//                                // First item is disable and it is used for hint
+//                                // Notify the selected item text
+//                                Toast.makeText
+//                                        (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+//                                        .show();
+//                                paramSelectedLocality = selectedItemText;
+//                                for (int i = 0; i < lists.length(); i++) {
+//                                    JSONObject localityList = null;
+//                                    try {
+//                                        localityList = lists.getJSONObject(i);
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                    String localityName = null;
+//                                    try {
+//                                        assert localityList != null;
+//                                        localityName = localityList.getString("llocalityname");
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                    if(paramSelectedLocality.equals(localityName)){
+//                                        latitude = Double.parseDouble(localityList.optString("llocality_lat"));
+//                                        longitude = Double.parseDouble(localityList.optString("llocality_long"));
+//                                    }
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onNothingSelected(AdapterView<?> parent) {
+//
+//                            }
+//                        });
 
 //
 //                        } catch (IOException e) {
@@ -633,5 +626,135 @@ public class MainActivity extends AppCompatActivity {
         imageModel5.setImagePath(R.drawable.testimg);
         imageModelArrayList.add(imageModel5);
         return imageModelArrayList;
+    }
+
+    private class ConnectionAsyncTask extends AsyncTask<String, Void, JSONObject> {
+
+        @Override
+        protected void onPreExecute()
+        {
+            if (progressDialog != null)
+                progressDialog.cancel();
+            progressDialog = ProgressDialog.show(MainActivity.this, "", "Please wait...", true, true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected JSONObject doInBackground(String... strings) {
+            JSONObject result = null;
+            try {
+                result = ConnectionUtil.postMethod(strings[0],strings[1]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject result) {
+            jsonResponse = result;
+
+            JSONArray info = null;
+            try {
+                assert jsonResponse != null;
+                info = jsonResponse.getJSONArray("info");
+                lists = info;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            String[] localities = new String[info.length() + 1];
+            if (info.length() == 0) {
+                localities[0] = "Coming Soon!";
+            } else {
+                localities[0] = "Select nearest locality";
+            }
+            for (int i = 0; i < info.length(); i++) {
+                JSONObject localityList = null;
+                try {
+                    localityList = info.getJSONObject(i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String localityName = null;
+                try {
+                    localityName = localityList.getString("llocalityname");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                localities[i + 1] = localityName;
+            }
+            final List<String> LocalitySpinnerList = new ArrayList<>(Arrays.asList(localities));
+
+            // Initializing an ArrayAdapter
+            final ArrayAdapter<String> LocalitySpinnerArrayAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.spinner_item, LocalitySpinnerList) {
+                @Override
+                public boolean isEnabled(int position) {
+                    return position != 0;
+                }
+
+                @Override
+                public View getDropDownView(int position, View convertView,
+                                            ViewGroup parent) {
+                    View view = super.getDropDownView(position, convertView, parent);
+                    TextView tv = (TextView) view;
+                    if (position == 0) {
+                        // Set the hint text color gray
+                        tv.setTextColor(Color.GRAY);
+                    } else {
+                        tv.setTextColor(Color.BLACK);
+                    }
+                    return view;
+                }
+            };
+            LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+            searchView.setAdapter(LocalitySpinnerArrayAdapter);
+
+            searchView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedItemText = (String) parent.getItemAtPosition(position);
+                    // If user change the default selection
+                    // First item is disable and it is used for hint
+                    // Notify the selected item text
+                    Toast.makeText
+                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                            .show();
+                    paramSelectedLocality = selectedItemText;
+                    for (int i = 0; i < lists.length(); i++) {
+                        JSONObject localityList = null;
+                        try {
+                            localityList = lists.getJSONObject(i);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        String localityName = null;
+                        try {
+                            assert localityList != null;
+                            localityName = localityList.getString("llocalityname");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if(paramSelectedLocality.equals(localityName)){
+                            latitude = Double.parseDouble(localityList.optString("llocality_lat"));
+                            longitude = Double.parseDouble(localityList.optString("llocality_long"));
+                        }
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
+            if (progressDialog != null) {
+                progressDialog.dismiss();
+                progressDialog = null;
+            }
+        }
     }
 }

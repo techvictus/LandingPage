@@ -27,7 +27,9 @@ public class ConnectionUtil {
      * @param js parameters that are required to get response from ENDPOINT
      * Method: POST
      */
-    public static JSONObject postMethod(String url, JSONObject js) throws IOException, JSONException {
+    public static JSONObject postMethod(String url, String jsString) throws IOException, JSONException {
+
+        JSONObject js = new JSONObject(jsString);
         DefaultHttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(url);
         StringEntity entity = null;

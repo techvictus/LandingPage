@@ -1,12 +1,13 @@
 package clinic.janelaaj.landingpage;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +39,7 @@ import java.util.List;
  */
 
 public class ListActivity extends AppCompatActivity {
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +53,6 @@ public class ListActivity extends AppCompatActivity {
         this.setContentView(R.layout.activity_list);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-        if (android.os.Build.VERSION.SDK_INT > 15) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
 
         Intent intent = getIntent();
         String cityName = intent.getExtras().getString("CityName");
@@ -67,8 +65,8 @@ public class ListActivity extends AppCompatActivity {
         double longitude;
         double latitude;
         if (selectedParam != null && !selectedParam.equals("Select nearest locality")) {
-            longitude = intent.getExtras().getDouble("paramLatitude");
-            latitude = intent.getExtras().getDouble("paramLongitude");
+            longitude = intent.getExtras().getDouble("paramLongitude");
+            latitude = intent.getExtras().getDouble("paramLatitude");
         } else {
             address = cityName;
             locationPoint = getLocationFromAddress(ListActivity.this, address);
@@ -98,56 +96,58 @@ public class ListActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
+        String jsString = js.toString();
         String url;
         url = Endpoints.BASE_URL + Endpoints.GET_DOCTORS_BY_LOCATION;
-        JSONObject doctorsList = null;
-        try {
-            doctorsList = ConnectionUtil.postMethod(url, js);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        ConnectionAsyncTask task = new ConnectionAsyncTask();
+        task.execute(url,jsString);
+//        JSONObject doctorsList = null;
+//        try {
+//            doctorsList = ConnectionUtil.postMethod(url, js.toString());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
 
-        JSONArray ldoctorid = null;
-        try {
-            assert doctorsList != null;
-            ldoctorid = doctorsList.getJSONArray("info");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        ArrayList<Profile> profiles = new ArrayList<>();
-        for (int i = 0; i < ldoctorid.length(); i++) {
-            JSONObject result = null;
-            try {
-                result = ldoctorid.getJSONObject(i);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            assert result != null;
-            String profileName = result.optString("ldoctorname");
-            profiles.add(new Profile(profileName));
-        }
-        ImageView inbox = (ImageView) findViewById(R.id.inbox);
-        inbox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent landingPageIntent = new Intent(ListActivity.this, MainActivity.class);
-                startActivity(landingPageIntent);
-            }
-        });
-
-//        profiles.add(new Profile("a"));
-//        profiles.add(new Profile("b"));
-//        profiles.add(new Profile("c"));
-//        profiles.add(new Profile("d"));
-//        profiles.add(new Profile("e"));
-//        profiles.add(new Profile("f"));
-//        profiles.add(new Profile("g"));
-        ProfileAdapter adapter = new ProfileAdapter(this, profiles);
-        ListView profileListView = (ListView) findViewById(R.id.list);
-        profileListView.setAdapter(adapter);
+//        JSONArray ldoctorid = null;
+//        try {
+//            assert doctorsList != null;
+//            ldoctorid = doctorsList.getJSONArray("info");
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        ArrayList<Profile> profiles = new ArrayList<>();
+//        for (int i = 0; i < ldoctorid.length(); i++) {
+//            JSONObject result = null;
+//            try {
+//                result = ldoctorid.getJSONObject(i);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            assert result != null;
+//            String profileName = result.optString("ldoctorname");
+//            profiles.add(new Profile(profileName));
+//        }
+//        ImageView inbox = (ImageView) findViewById(R.id.inbox);
+//        inbox.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent landingPageIntent = new Intent(ListActivity.this, MainActivity.class);
+//                startActivity(landingPageIntent);
+//            }
+//        });
+//
+////        profiles.add(new Profile("a"));
+////        profiles.add(new Profile("b"));
+////        profiles.add(new Profile("c"));
+////        profiles.add(new Profile("d"));
+////        profiles.add(new Profile("e"));
+////        profiles.add(new Profile("f"));
+////        profiles.add(new Profile("g"));
+//        ProfileAdapter adapter = new ProfileAdapter(this, profiles);
+//        ListView profileListView = (ListView) findViewById(R.id.list);
+//        profileListView.setAdapter(adapter);
 
         final ImageView expandListButton = (ImageView) findViewById(R.id.custom_down_arrow);
         final LinearLayout expandList = (LinearLayout) findViewById(R.id.drop_down_two);
@@ -244,5 +244,70 @@ public class ListActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
         return p1;
+    }
+
+    private class ConnectionAsyncTask extends AsyncTask<String, Void, JSONObject> {
+
+        @Override
+        protected void onPreExecute()
+        {
+            if (progressDialog != null)
+                progressDialog.cancel();
+            progressDialog = ProgressDialog.show(ListActivity.this, "", "Please wait...", true, true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected JSONObject doInBackground(String... strings) {
+            JSONObject result = null;
+            try {
+                result = ConnectionUtil.postMethod(strings[0],strings[1]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject result) {
+            JSONArray ldoctorid = null;
+            try {
+                assert result != null;
+                ldoctorid = result.getJSONArray("info");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            ArrayList<Profile> profiles = new ArrayList<>();
+            for (int i = 0; i < ldoctorid.length(); i++) {
+                JSONObject obj = null;
+                try {
+                    obj = ldoctorid.getJSONObject(i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                assert obj != null;
+                String profileName = result.optString("ldoctorname");
+                profiles.add(new Profile(profileName));
+            }
+            ImageView inbox = (ImageView) findViewById(R.id.inbox);
+            inbox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent landingPageIntent = new Intent(ListActivity.this, MainActivity.class);
+                    startActivity(landingPageIntent);
+                }
+            });
+            ProfileAdapter adapter = new ProfileAdapter(ListActivity.this, profiles);
+            ListView profileListView = (ListView) findViewById(R.id.list);
+            profileListView.setAdapter(adapter);
+
+            if (progressDialog != null) {
+                progressDialog.dismiss();
+                progressDialog = null;
+            }
+        }
     }
 }
