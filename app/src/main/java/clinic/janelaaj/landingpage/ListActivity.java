@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -40,7 +41,7 @@ import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
-
+    private ArrayList<Profile> profiles;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Remove title bar
@@ -53,6 +54,15 @@ public class ListActivity extends AppCompatActivity {
         this.setContentView(R.layout.activity_list);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+
+        ImageView inbox = (ImageView) findViewById(R.id.inbox);
+        inbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent landingPageIntent = new Intent(ListActivity.this, MainActivity.class);
+                startActivity(landingPageIntent);
+            }
+        });
 
         Intent intent = getIntent();
         String cityName = intent.getExtras().getString("CityName");
@@ -280,26 +290,27 @@ public class ListActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            ArrayList<Profile> profiles = new ArrayList<>();
+            profiles = new ArrayList<>();
             for (int i = 0; i < ldoctorid.length(); i++) {
                 JSONObject obj = null;
-                try {
-                    obj = ldoctorid.getJSONObject(i);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                obj = ldoctorid.optJSONObject(i);
                 assert obj != null;
-                String profileName = result.optString("ldoctorname");
-                profiles.add(new Profile(profileName));
+                String doctorId= obj.optString("ldoctorid");
+                String doctorName=obj.optString("ldoctorname");
+                String mbbsflag=obj.optString("lmbbsflag");
+                String mdflag=obj.optString("lmdflag");
+                String msflag=obj.optString("lmsflag");
+                String cliniclocationname=obj.optString("lcliniclocationname");
+                String addressline1=obj.optString("laddressline1");
+                String addressline2=obj.optString("laddressline2");
+                String city=obj.optString("lcity");
+                String pincode=obj.optString("lpincode");
+                String rating=obj.optString("lrating");
+                String normalamount=obj.optString("lnormalamount");
+                String discountedamount=obj.optString("ldiscountedamount");
+                String discountflag=obj.optString("ldiscountflag");
+                profiles.add(new Profile(doctorId,doctorName,mbbsflag,mdflag,msflag,cliniclocationname,addressline1,addressline2,city,pincode,rating,normalamount,discountedamount,discountflag));
             }
-            ImageView inbox = (ImageView) findViewById(R.id.inbox);
-            inbox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent landingPageIntent = new Intent(ListActivity.this, MainActivity.class);
-                    startActivity(landingPageIntent);
-                }
-            });
             ProfileAdapter adapter = new ProfileAdapter(ListActivity.this, profiles);
             ListView profileListView = (ListView) findViewById(R.id.list);
             profileListView.setAdapter(adapter);

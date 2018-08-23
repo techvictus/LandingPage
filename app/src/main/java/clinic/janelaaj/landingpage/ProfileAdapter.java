@@ -34,7 +34,7 @@ public class ProfileAdapter extends ArrayAdapter<Profile>{
 
         TextView profileName = (TextView) listItemView.findViewById(R.id.profile_name);
 
-        profileName.setText(currentProfile.getProfileName());
+        profileName.setText(currentProfile.getDoctorName());
 
         final RelativeLayout collapse = (RelativeLayout) listItemView.findViewById(R.id.first);
         final LinearLayout expand = (LinearLayout) listItemView.findViewById(R.id.list_expand);
