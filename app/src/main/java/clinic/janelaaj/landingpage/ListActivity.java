@@ -86,7 +86,7 @@ public class ListActivity extends AppCompatActivity {
             locationPoint = getLocationFromAddress(ListActivity.this, address);
             longitude = locationPoint.longitude;
             latitude = locationPoint.latitude;
-            summary.setText(Html.fromHtml("Searching for "+"<b>"+who+"</b>"+" by their"+"<b>"+spinnerSelectedItem+" around: "+"</b>"+"<b>"+cityName+"</b>"));
+            summary.setText(Html.fromHtml("Searching for "+"<b>"+who+"</b>"+"<b>"+" around: "+"</b>"+"<br>"+"<b>"+cityName+"</b>"));
             selectedParam = "Not Selected";
         }
 
