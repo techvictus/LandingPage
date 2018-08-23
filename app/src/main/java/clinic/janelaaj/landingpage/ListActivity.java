@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +69,9 @@ public class ListActivity extends AppCompatActivity {
         String cityName = intent.getExtras().getString("CityName");
         String spinnerSelectedItem = intent.getExtras().getString("SpinnerSelectedItem");
         String selectedParam = intent.getExtras().getString("paramSelectedLocality");
+        String who =intent.getExtras().getString("who");
 
+        TextView summary = (TextView) findViewById(R.id.summary);
 
         LatLng locationPoint;
         String address;
@@ -77,11 +80,13 @@ public class ListActivity extends AppCompatActivity {
         if (selectedParam != null && !selectedParam.equals("Select nearest locality")) {
             longitude = intent.getExtras().getDouble("paramLongitude");
             latitude = intent.getExtras().getDouble("paramLatitude");
+            summary.setText(Html.fromHtml("Searching for "+"<b>"+who+"</b>"+" by their "+"<b>"+spinnerSelectedItem+" near: "+"</b>"+"<br>"+"<b>"+selectedParam+"</b>"));
         } else {
             address = cityName;
             locationPoint = getLocationFromAddress(ListActivity.this, address);
             longitude = locationPoint.longitude;
             latitude = locationPoint.latitude;
+            summary.setText(Html.fromHtml("Searching for "+"<b>"+who+"</b>"+" by their"+"<b>"+spinnerSelectedItem+" around: "+"</b>"+"<b>"+cityName+"</b>"));
             selectedParam = "Not Selected";
         }
 

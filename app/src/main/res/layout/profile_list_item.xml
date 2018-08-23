@@ -32,12 +32,21 @@
                 app:civ_border_width="2dp" />
 
             <ImageView
+                android:id="@+id/book_appointment"
                 android:layout_width="110dp"
                 android:layout_height="35dp"
                 android:layout_alignParentRight="true"
                 android:layout_margin="5dp"
                 android:scaleType="fitXY"
                 android:src="@drawable/book_appointment_normal" />
+            <TextView
+                android:id="@+id/price_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="40dp"
+                android:layout_marginRight="8dp"
+                android:text="₹"/>
 
             <LinearLayout
                 android:id="@+id/profile"
@@ -48,24 +57,16 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/profile_name"
+                    android:id="@+id/doc_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sambit Mallick"
                     android:textAppearance="?android:textAppearanceMedium" />
-
                 <TextView
                     android:id="@+id/profile_qualification"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Doctor"
-                    android:textAppearance="?android:textAppearanceSmall" />
-
-                <TextView
-                    android:id="@+id/profile_experience"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Current"
+                    android:text="M.D, M.B.B.S, M.S"
                     android:textAppearance="?android:textAppearanceSmall" />
 
                 <RatingBar
@@ -73,6 +74,7 @@
                     style="?android:attr/ratingBarStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:numStars="5"
                     android:rating="2.5"
                     android:stepSize="0.5" />
@@ -82,6 +84,7 @@
                 android:id="@+id/map_pic"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_below="@id/profile"
                 android:src="@drawable/map_pic"/>
 
@@ -91,15 +94,17 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/profile"
                 android:layout_toRightOf="@id/map_pic"
+                android:layout_marginTop="10dp"
                 android:layout_marginLeft="4dp"
-                android:text="I'm here" />
+                android:layout_toLeftOf="@id/down_expand"
+                android:text="JE Clinic, C-1, Sarita Vihar New Delhi 110002" />
 
             <ImageView
                 android:id="@+id/down_expand"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
+                android:layout_marginTop="68dp"
                 android:layout_gravity="right"
                 android:src="@drawable/outline_expand_more_black_36" />
 
@@ -139,6 +144,7 @@
                     app:civ_border_width="2dp" />
 
                 <TextView
+                    android:id="@+id/list_expand_doc_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"

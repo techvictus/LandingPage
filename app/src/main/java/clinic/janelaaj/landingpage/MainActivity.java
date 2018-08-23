@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private JSONObject jsonResponse;
     private ProgressDialog progressDialog;
     private Spinner searchView;
+    private String who="Doctors";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
         doctorsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                who="Doctors";
                 by.setVisibility(View.VISIBLE);
                 spinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
@@ -225,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
         testLabsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                who="Test-Labs";
                 by.setVisibility(View.VISIBLE);
                 spinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
@@ -238,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
         pharmaciesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                who="Pharmacies";
                 by.setVisibility(View.VISIBLE);
                 spinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
@@ -251,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
         vitalsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                who="Vitals";
                 by.setVisibility(View.VISIBLE);
                 spinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
@@ -583,6 +588,7 @@ public class MainActivity extends AppCompatActivity {
                 profileListIntent.putExtra("paramSelectedLocality", paramSelectedLocality);
                 profileListIntent.putExtra("paramLatitude",latitude);
                 profileListIntent.putExtra("paramLongitude",longitude);
+                profileListIntent.putExtra("who",who);
                 startActivity(profileListIntent);
             }
         });
