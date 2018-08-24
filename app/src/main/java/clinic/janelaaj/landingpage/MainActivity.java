@@ -53,16 +53,17 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
-    private String cityName;
-    private String paramSelectedLocality;
-    private String spinnerSelectedItem;
+    private String paramSelectedLocality, spinnerSelectedItem, cityName, who = "Doctors";
     private JSONArray lists;
-    private double latitude;
-    private double longitude;
+    private double latitude, longitude;
     private JSONObject jsonResponse;
     private ProgressDialog progressDialog;
-    private Spinner searchView;
-    private String who="Doctors";
+    private Spinner searchSpinner, spinner;
+    private TextView by;
+    private ImageView collapseDropDown;
+    private LinearLayout expandDropDown, searchView;
+    private RadioButton doctorsButton, testLabsButton, pharmaciesButton, vitalsButton;
+    private ImageButton searchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +80,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Implementation of Navigation Drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -129,19 +130,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Implementation  of Ad-View using RecyclerView {@link ImageModel}, {@link HorizontalRecyclerViewAdapter}
         RecyclerView mHorizontalRecyclerView = (RecyclerView) findViewById(R.id.horizontalRecyclerView);
-        mHorizontalRecyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
-                DividerItemDecoration.HORIZONTAL));
+        mHorizontalRecyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.HORIZONTAL));
         mHorizontalRecyclerView.setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.horizontalmargin));
-
         HorizontalRecyclerViewAdapter horizontalAdapter = new HorizontalRecyclerViewAdapter(fillWithData(), getApplication());
-
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mHorizontalRecyclerView.setLayoutManager(horizontalLayoutManager);
         mHorizontalRecyclerView.setAdapter(horizontalAdapter);
 
+        //Showing the list of Cities, where the service is available
         final Spinner citySpinner = (Spinner) findViewById(R.id.city_spinner);
-
         final String[] city = new String[]{
                 "NEW DELHI",
                 "GURUGRAM",
@@ -156,13 +155,10 @@ public class MainActivity extends AppCompatActivity {
                 "HYDERABAD",
         };
         final List<String> citySpinnerList = new ArrayList<>(Arrays.asList(city));
-
         // Initializing an ArrayAdapter
-        final ArrayAdapter<String> citySpinnerArrayAdapter = new ArrayAdapter<String>(
-                this, R.layout.spinner_item, citySpinnerList) {
+        final ArrayAdapter<String> citySpinnerArrayAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item, citySpinnerList) {
             @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
                 TextView tv = (TextView) view;
                 return view;
@@ -170,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
         };
         citySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
         citySpinner.setAdapter(citySpinnerArrayAdapter);
-
         citySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -186,39 +181,36 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                //Do Something
             }
         });
 
+        //Check functions for buttons with 2*2 layout
+        by = (TextView) findViewById(R.id.by);
+        searchSpinner = (Spinner) findViewById(R.id.search);
+        collapseDropDown = (ImageView) findViewById(R.id.custom_up_arrow);
+        spinner = (Spinner) findViewById(R.id.spinner_one);
+        expandDropDown = (LinearLayout) findViewById(R.id.drop_down);
+        searchButton = (ImageButton) findViewById(R.id.search_button);
+        searchView = (LinearLayout) findViewById(R.id.search_view);
 
-        /*
-         *  Check functions for buttons with 2*2 layout
-         */
-
-        final TextView by = (TextView) findViewById(R.id.by);
-        searchView = (Spinner) findViewById(R.id.search);
-        final ImageView collapseDropDown = (ImageView) findViewById(R.id.custom_up_arrow);
-        final Spinner spinner = (Spinner) findViewById(R.id.spinner_one);
-        final LinearLayout expandDropDown = (LinearLayout) findViewById(R.id.drop_down);
-
-
-        final RadioButton doctorsButton = (RadioButton) findViewById(R.id.doctors_button);
-        final RadioButton testLabsButton = (RadioButton) findViewById(R.id.test_labs_button);
-        final RadioButton pharmaciesButton = (RadioButton) findViewById(R.id.pharmacies_button);
-        final RadioButton vitalsButton = (RadioButton) findViewById(R.id.vitals_button);
+        doctorsButton = (RadioButton) findViewById(R.id.doctors_button);
+        testLabsButton = (RadioButton) findViewById(R.id.test_labs_button);
+        pharmaciesButton = (RadioButton) findViewById(R.id.pharmacies_button);
+        vitalsButton = (RadioButton) findViewById(R.id.vitals_button);
 
         doctorsButton.setChecked(true);  // Default setting
-
-
         doctorsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                who="Doctors";
+                who = "Doctors";
                 by.setVisibility(View.VISIBLE);
                 spinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                searchView.setVisibility(View.VISIBLE);
+                searchSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
+                searchButton.setVisibility(View.VISIBLE);
+                searchView.setVisibility(View.VISIBLE);
                 doctorsButton.setChecked(true);
                 pharmaciesButton.setChecked(false);
                 vitalsButton.setChecked(false);
@@ -227,12 +219,14 @@ public class MainActivity extends AppCompatActivity {
         testLabsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                who="Test-Labs";
+                who = "Test-Labs";
                 by.setVisibility(View.VISIBLE);
                 spinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                searchView.setVisibility(View.VISIBLE);
+                searchSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
+                searchView.setVisibility(View.VISIBLE);
+                searchButton.setVisibility(View.VISIBLE);
                 testLabsButton.setChecked(true);
                 pharmaciesButton.setChecked(false);
                 vitalsButton.setChecked(false);
@@ -241,12 +235,14 @@ public class MainActivity extends AppCompatActivity {
         pharmaciesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                who="Pharmacies";
+                who = "Pharmacies";
                 by.setVisibility(View.VISIBLE);
                 spinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                searchView.setVisibility(View.VISIBLE);
+                searchSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
+                searchView.setVisibility(View.VISIBLE);
+                searchButton.setVisibility(View.VISIBLE);
                 doctorsButton.setChecked(false);
                 testLabsButton.setChecked(false);
                 pharmaciesButton.setChecked(true);
@@ -255,28 +251,32 @@ public class MainActivity extends AppCompatActivity {
         vitalsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                who="Vitals";
+                who = "Vitals";
                 by.setVisibility(View.VISIBLE);
                 spinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                searchView.setVisibility(View.VISIBLE);
+                searchSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
+                searchView.setVisibility(View.VISIBLE);
+                searchButton.setVisibility(View.VISIBLE);
                 doctorsButton.setChecked(false);
                 testLabsButton.setChecked(false);
                 vitalsButton.setChecked(true);
             }
         });
-
-
         collapseDropDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 spinner.setVisibility(View.GONE);
                 collapseDropDown.setVisibility(View.GONE);
                 searchView.setVisibility(View.GONE);
+                searchSpinner.setVisibility(View.GONE);
                 by.setVisibility(View.GONE);
+                searchButton.setVisibility(View.GONE);
             }
         });
+
+        //Showing the list of filters to the users
         String[] list = new String[]{
                 "Select an item...",
                 "Location",
@@ -284,7 +284,6 @@ public class MainActivity extends AppCompatActivity {
                 "Price",
         };
         final List<String> spinnerList = new ArrayList<>(Arrays.asList(list));
-
         // Initializing an ArrayAdapter
         final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
                 this, R.layout.spinner_item, spinnerList) {
@@ -315,7 +314,6 @@ public class MainActivity extends AppCompatActivity {
         };
         spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
         spinner.setAdapter(spinnerArrayAdapter);
-
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -329,6 +327,7 @@ public class MainActivity extends AppCompatActivity {
                             .show();
                     spinnerSelectedItem = selectedItemText;
 
+                    //Showing the queries according to the chosen filters {@link ConnectionAsyncTask}, {@link Endpoints}
                     if (selectedItemText.equals("Location")) {
                         JSONObject js = new JSONObject();
                         try {
@@ -340,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
                         String url;
                         url = Endpoints.BASE_URL + Endpoints.GET_LOCALITY;
                         ConnectionAsyncTask task = new ConnectionAsyncTask();
-                        task.execute(url,jsString);
+                        task.execute(url, jsString);
 //                        JSONArray info = null;
 //                        try {
 //                            assert jsonResponse != null;
@@ -395,9 +394,9 @@ public class MainActivity extends AppCompatActivity {
 //                            }
 //                        };
 //                        LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
-//                        searchView.setAdapter(LocalitySpinnerArrayAdapter);
+//                        searchSpinner.setAdapter(LocalitySpinnerArrayAdapter);
 //
-//                        searchView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//                        searchSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 //                            @Override
 //                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                                String selectedItemText = (String) parent.getItemAtPosition(position);
@@ -578,6 +577,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Passing values to the {@link ListActivity}
         final ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -586,14 +586,18 @@ public class MainActivity extends AppCompatActivity {
                 profileListIntent.putExtra("CityName", cityName);
                 profileListIntent.putExtra("SpinnerSelectedItem", spinnerSelectedItem);
                 profileListIntent.putExtra("paramSelectedLocality", paramSelectedLocality);
-                profileListIntent.putExtra("paramLatitude",latitude);
-                profileListIntent.putExtra("paramLongitude",longitude);
-                profileListIntent.putExtra("who",who);
+                profileListIntent.putExtra("paramLatitude", latitude);
+                profileListIntent.putExtra("paramLongitude", longitude);
+                profileListIntent.putExtra("who", who);
                 startActivity(profileListIntent);
             }
         });
     }
 
+    /**
+     * Inserting the pictures using
+     * {@link ImageModel} Data Structure
+     */
     public ArrayList<ImageModel> fillWithData() {
         ArrayList<ImageModel> imageModelArrayList = new ArrayList<>();
         ImageModel imageModel0 = new ImageModel();
@@ -634,11 +638,13 @@ public class MainActivity extends AppCompatActivity {
         return imageModelArrayList;
     }
 
+    /**
+     * Creating another thread to connect Endpoint and receive response
+     * {@link ConnectionUtil}
+     */
     private class ConnectionAsyncTask extends AsyncTask<String, Void, JSONObject> {
-
         @Override
-        protected void onPreExecute()
-        {
+        protected void onPreExecute() {
             if (progressDialog != null)
                 progressDialog.cancel();
             progressDialog = ProgressDialog.show(MainActivity.this, "", "Please wait...", true, true);
@@ -650,7 +656,7 @@ public class MainActivity extends AppCompatActivity {
         protected JSONObject doInBackground(String... strings) {
             JSONObject result = null;
             try {
-                result = ConnectionUtil.postMethod(strings[0],strings[1]);
+                result = ConnectionUtil.postMethod(strings[0], strings[1]);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -662,7 +668,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(JSONObject result) {
             jsonResponse = result;
-
             JSONArray info = null;
             try {
                 assert jsonResponse != null;
@@ -671,7 +676,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
             String[] localities = new String[info.length() + 1];
             if (info.length() == 0) {
                 localities[0] = "Coming Soon!";
@@ -694,7 +698,6 @@ public class MainActivity extends AppCompatActivity {
                 localities[i + 1] = localityName;
             }
             final List<String> LocalitySpinnerList = new ArrayList<>(Arrays.asList(localities));
-
             // Initializing an ArrayAdapter
             final ArrayAdapter<String> LocalitySpinnerArrayAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.spinner_item, LocalitySpinnerList) {
                 @Override
@@ -703,8 +706,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public View getDropDownView(int position, View convertView,
-                                            ViewGroup parent) {
+                public View getDropDownView(int position, View convertView, ViewGroup parent) {
                     View view = super.getDropDownView(position, convertView, parent);
                     TextView tv = (TextView) view;
                     if (position == 0) {
@@ -717,9 +719,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
             LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
-            searchView.setAdapter(LocalitySpinnerArrayAdapter);
-
-            searchView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            searchSpinner.setAdapter(LocalitySpinnerArrayAdapter);
+            searchSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String selectedItemText = (String) parent.getItemAtPosition(position);
@@ -744,7 +745,7 @@ public class MainActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        if(paramSelectedLocality.equals(localityName)){
+                        if (paramSelectedLocality.equals(localityName)) {
                             latitude = Double.parseDouble(localityList.optString("llocality_lat"));
                             longitude = Double.parseDouble(localityList.optString("llocality_long"));
                         }
@@ -753,10 +754,8 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-
                 }
             });
-
             if (progressDialog != null) {
                 progressDialog.dismiss();
                 progressDialog = null;
