@@ -29,6 +29,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +46,7 @@ import java.util.List;
 public class ListActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private ArrayList<Profile> profiles;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Remove title bar
@@ -69,7 +73,7 @@ public class ListActivity extends AppCompatActivity {
         String cityName = intent.getExtras().getString("CityName");
         String spinnerSelectedItem = intent.getExtras().getString("SpinnerSelectedItem");
         String selectedParam = intent.getExtras().getString("paramSelectedLocality");
-        String who =intent.getExtras().getString("who");
+        String who = intent.getExtras().getString("who");
 
         TextView summary = (TextView) findViewById(R.id.summary);
 
@@ -80,17 +84,30 @@ public class ListActivity extends AppCompatActivity {
         if (selectedParam != null && !selectedParam.equals("Select nearest locality")) {
             longitude = intent.getExtras().getDouble("paramLongitude");
             latitude = intent.getExtras().getDouble("paramLatitude");
-            summary.setText(Html.fromHtml("Searching for "+"<b>"+who+"</b>"+" by their "+"<b>"+spinnerSelectedItem+" near: "+"</b>"+"<br>"+"<b>"+selectedParam+"</b>"));
+            summary.setText(Html.fromHtml("Searching for " + "<b>" + who + "</b>" + " by their " + "<b>" + spinnerSelectedItem + " near: " + "</b>" + "<br>" + "<b>" + selectedParam + "</b>"));
         } else {
             address = cityName;
             locationPoint = getLocationFromAddress(ListActivity.this, address);
             longitude = locationPoint.longitude;
             latitude = locationPoint.latitude;
-            summary.setText(Html.fromHtml("Searching for "+"<b>"+who+"</b>"+"<b>"+" around: "+"</b>"+"<br>"+"<b>"+cityName+"</b>"));
+            summary.setText(Html.fromHtml("Searching for " + "<b>" + who + "</b>" + "<b>" + " around: " + "</b>" + "<br>" + "<b>" + cityName + "</b>"));
             selectedParam = "Not Selected";
         }
-
+        String DM_Role = null;
+        if (who.equals("Doctors"))
+            DM_Role = "DOC";
+        if (who.equals("Vitals"))
+            DM_Role = "VIT";
+        if(DM_Role==null)
+            DM_Role="1";
+        Log.d("res1234",DM_Role);
+        Log.d("res1234",who);
         JSONObject js = new JSONObject();
+        try {
+            js.put("dmrole", DM_Role);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         try {
             js.put("cityname", cityName);
         } catch (JSONException e) {
@@ -111,11 +128,21 @@ public class ListActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        try {
+            js.put("localitylat", latitude);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            js.put("localitylong", longitude);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         String jsString = js.toString();
         String url;
         url = Endpoints.BASE_URL + Endpoints.GET_DOCTORS_BY_LOCATION;
         ConnectionAsyncTask task = new ConnectionAsyncTask();
-        task.execute(url,jsString);
+        task.execute(url, jsString);
 //        JSONObject doctorsList = null;
 //        try {
 //            doctorsList = ConnectionUtil.postMethod(url, js.toString());
@@ -264,8 +291,7 @@ public class ListActivity extends AppCompatActivity {
     private class ConnectionAsyncTask extends AsyncTask<String, Void, JSONObject> {
 
         @Override
-        protected void onPreExecute()
-        {
+        protected void onPreExecute() {
             if (progressDialog != null)
                 progressDialog.cancel();
             progressDialog = ProgressDialog.show(ListActivity.this, "", "Please wait...", true, true);
@@ -277,7 +303,7 @@ public class ListActivity extends AppCompatActivity {
         protected JSONObject doInBackground(String... strings) {
             JSONObject result = null;
             try {
-                result = ConnectionUtil.postMethod(strings[0],strings[1]);
+                result = ConnectionUtil.postMethod(strings[0], strings[1]);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -292,29 +318,46 @@ public class ListActivity extends AppCompatActivity {
             try {
                 assert result != null;
                 ldoctorid = result.getJSONArray("info");
+                Log.d("res1234", "han "+ldoctorid);
             } catch (JSONException e) {
+                Log.d("res1234", "nah");
                 e.printStackTrace();
             }
             profiles = new ArrayList<>();
             for (int i = 0; i < ldoctorid.length(); i++) {
                 JSONObject obj = null;
                 obj = ldoctorid.optJSONObject(i);
+                Log.d("res1234", "hai kya "+String.valueOf(obj));
                 assert obj != null;
-                String doctorId= obj.optString("ldoctorid");
-                String doctorName=obj.optString("ldoctorname");
-                String mbbsflag=obj.optString("lmbbsflag");
-                String mdflag=obj.optString("lmdflag");
-                String msflag=obj.optString("lmsflag");
-                String cliniclocationname=obj.optString("lcliniclocationname");
-                String addressline1=obj.optString("laddressline1");
-                String addressline2=obj.optString("laddressline2");
-                String city=obj.optString("lcity");
-                String pincode=obj.optString("lpincode");
-                String rating=obj.optString("lrating");
-                String normalamount=obj.optString("lnormalamount");
-                String discountedamount=obj.optString("ldiscountedamount");
-                String discountflag=obj.optString("ldiscountflag");
-                profiles.add(new Profile(doctorId,doctorName,mbbsflag,mdflag,msflag,cliniclocationname,addressline1,addressline2,city,pincode,rating,normalamount,discountedamount,discountflag));
+                String doctorId = obj.optString("ldoctorid");
+                String doctorName = obj.optString("ldoctorname");
+//                String doctorPhotoString = obj.optString("ldoctorphoto");
+//                Log.d("img",doctorPhotoString);
+//                byte[] byteData = new byte[0];//Better to specify encoding
+//                try {
+//                    byteData = doctorPhotoString.getBytes("UTF-8");
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//                Blob doctorPhoto = null;
+//                try {
+//                    doctorPhoto.setBytes(1, byteData);
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+                String mbbsflag = obj.optString("lmbbsflag");
+                String mdflag = obj.optString("lmdflag");
+                String msflag = obj.optString("lmsflag");
+                String cliniclocationname = obj.optString("lcliniclocationname");
+                String addressline1 = obj.optString("laddressline1");
+                String addressline2 = obj.optString("laddressline2");
+                String city = obj.optString("lcity");
+                String pincode = obj.optString("lpincode");
+                String rating = obj.optString("lrating");
+                String normalamount = obj.optString("lnormalamount");
+                String discountedamount = obj.optString("ldiscountedamount");
+                String discountflag = obj.optString("ldiscountflag");
+                profiles.add(new Profile(doctorId, doctorName, "test", mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
             }
             ProfileAdapter adapter = new ProfileAdapter(ListActivity.this, profiles);
             ListView profileListView = (ListView) findViewById(R.id.list);

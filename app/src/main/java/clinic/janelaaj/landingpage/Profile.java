@@ -1,8 +1,11 @@
 package clinic.janelaaj.landingpage;
 
+import java.sql.Blob;
+
 public class Profile {
     private String mDoctorid;
     private String mDoctorName;
+    private String mDoctorPhoto;
     private String mMbbsflag;
     private String mMdflag;
     private String mMsflag;
@@ -16,9 +19,10 @@ public class Profile {
     private String mDiscountedamount;
     private String mDiscountflag;
 
-    public Profile(String doctorid, String doctorname, String mbbsflag, String mdflag, String msflag, String cliniclocationname, String addressline1, String addressline2, String city, String pincode, String rating, String normalamount, String discountedamount, String discountflag) {
+    public Profile(String doctorid, String doctorname, String doctorPhoto, String mbbsflag, String mdflag, String msflag, String cliniclocationname, String addressline1, String addressline2, String city, String pincode, String rating, String normalamount, String discountedamount, String discountflag) {
         mDoctorid = doctorid;
         mDoctorName = doctorname;
+        mDoctorPhoto = doctorPhoto;
         mMbbsflag = mbbsflag;
         mMdflag = mdflag;
         mMsflag = msflag;
@@ -39,6 +43,10 @@ public class Profile {
 
     public String getDoctorName() {
         return mDoctorName;
+    }
+
+    public String getDoctorPhoto() {
+        return mDoctorPhoto;
     }
 
     public String getMbbsflag() {
