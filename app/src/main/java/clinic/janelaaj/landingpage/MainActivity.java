@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +26,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout expandDropDown, searchView;
     private RadioButton doctorsButton, testLabsButton, pharmaciesButton, vitalsButton;
     private ImageButton searchButton;
+    private RadioGroup groupOne, groupTwo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,6 +197,8 @@ public class MainActivity extends AppCompatActivity {
         searchButton = (ImageButton) findViewById(R.id.search_button);
         searchView = (LinearLayout) findViewById(R.id.search_view);
 
+        groupOne = (RadioGroup) findViewById(R.id.radio_button);
+        groupTwo = (RadioGroup) findViewById(R.id.radio_button_one);
         doctorsButton = (RadioButton) findViewById(R.id.doctors_button);
         testLabsButton = (RadioButton) findViewById(R.id.test_labs_button);
         pharmaciesButton = (RadioButton) findViewById(R.id.pharmacies_button);
@@ -211,9 +216,15 @@ public class MainActivity extends AppCompatActivity {
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
+                groupOne.clearCheck();
+                groupTwo.clearCheck();
                 doctorsButton.setChecked(true);
                 pharmaciesButton.setChecked(false);
                 vitalsButton.setChecked(false);
+//                Log.d("who","doc "+doctorsButton.isChecked());
+//                Log.d("who","test "+testLabsButton.isChecked());
+//                Log.d("who","phar "+pharmaciesButton.isChecked());
+//                Log.d("who","vit "+vitalsButton.isChecked());
             }
         });
         testLabsButton.setOnClickListener(new View.OnClickListener() {
@@ -227,9 +238,15 @@ public class MainActivity extends AppCompatActivity {
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
+                groupOne.clearCheck();
+                groupTwo.clearCheck();
                 testLabsButton.setChecked(true);
                 pharmaciesButton.setChecked(false);
                 vitalsButton.setChecked(false);
+//                Log.d("who","doc "+doctorsButton.isChecked());
+//                Log.d("who","test "+testLabsButton.isChecked());
+//                Log.d("who","phar "+pharmaciesButton.isChecked());
+//                Log.d("who","vit "+vitalsButton.isChecked());
             }
         });
         pharmaciesButton.setOnClickListener(new View.OnClickListener() {
@@ -243,9 +260,15 @@ public class MainActivity extends AppCompatActivity {
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
+                groupOne.clearCheck();
+                groupTwo.clearCheck();
                 doctorsButton.setChecked(false);
                 testLabsButton.setChecked(false);
                 pharmaciesButton.setChecked(true);
+//                Log.d("who","doc "+doctorsButton.isChecked());
+//                Log.d("who","test "+testLabsButton.isChecked());
+//                Log.d("who","phar "+pharmaciesButton.isChecked());
+//                Log.d("who","vit "+vitalsButton.isChecked());
             }
         });
         vitalsButton.setOnClickListener(new View.OnClickListener() {
@@ -259,9 +282,15 @@ public class MainActivity extends AppCompatActivity {
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
+                groupOne.clearCheck();
+                groupTwo.clearCheck();
                 doctorsButton.setChecked(false);
                 testLabsButton.setChecked(false);
                 vitalsButton.setChecked(true);
+//                Log.d("who","doc "+doctorsButton.isChecked());
+//                Log.d("who","test "+testLabsButton.isChecked());
+//                Log.d("who","phar "+pharmaciesButton.isChecked());
+//                Log.d("who","vit "+vitalsButton.isChecked());
             }
         });
         collapseDropDown.setOnClickListener(new View.OnClickListener() {
@@ -273,6 +302,12 @@ public class MainActivity extends AppCompatActivity {
                 searchSpinner.setVisibility(View.GONE);
                 by.setVisibility(View.GONE);
                 searchButton.setVisibility(View.GONE);
+                groupOne.clearCheck();
+                groupTwo.clearCheck();
+//                Log.d("who","doc "+doctorsButton.isChecked());
+//                Log.d("who","test "+testLabsButton.isChecked());
+//                Log.d("who","phar "+pharmaciesButton.isChecked());
+//                Log.d("who","vit "+vitalsButton.isChecked());
             }
         });
 
