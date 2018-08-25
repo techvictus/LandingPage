@@ -24,17 +24,22 @@ public class ConnectionUtil {
     /**
      * Return a list of {@link JSONObject} objects passing
      * @param url of given ENDPOINT
-     * @param js parameters that are required to get response from ENDPOINT
+     * @param jsString parameters that are required to get response from ENDPOINT
      * Method: POST
      */
     public static JSONObject postMethod(String url, String jsString) throws IOException, JSONException {
 
-        JSONObject js = new JSONObject(jsString);
+        JSONObject js = null;
+        if(jsString!=null)
+            js = new JSONObject(jsString);
         DefaultHttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(url);
         StringEntity entity = null;
         try {
-            entity = new StringEntity(js.toString(), HTTP.UTF_8);
+            if(js!=null)
+                entity = new StringEntity(js.toString(), HTTP.UTF_8);
+            else
+                entity = new StringEntity(HTTP.UTF_8);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

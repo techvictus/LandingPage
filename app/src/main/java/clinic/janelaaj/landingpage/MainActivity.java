@@ -56,7 +56,6 @@ import java.util.List;
  * Initial commit by sambit-m on 17.08.2018
  */
 
-
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private double latitude, longitude;
     private JSONObject jsonResponse;
     private ProgressDialog progressDialog;
-    private Spinner searchSpinner, spinner;
+    private Spinner locationSpinner, specialitySpinner, citySpinner;
     private TextView by;
     private ImageView collapseDropDown;
     private LinearLayout expandDropDown, searchView;
@@ -149,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         mHorizontalRecyclerView.setAdapter(horizontalAdapter);
 
         //Showing the list of Cities, where the service is available
-        final Spinner citySpinner = (Spinner) findViewById(R.id.city_spinner);
+        citySpinner = (Spinner) findViewById(R.id.city_spinner);
         final String[] city = new String[]{
                 "NEW DELHI",
                 "GURUGRAM",
@@ -163,18 +162,7 @@ public class MainActivity extends AppCompatActivity {
                 "KOLKATA",
                 "HYDERABAD",
         };
-        final List<String> citySpinnerList = new ArrayList<>(Arrays.asList(city));
-        // Initializing an ArrayAdapter
-        final ArrayAdapter<String> citySpinnerArrayAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item, citySpinnerList) {
-            @Override
-            public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view;
-                return view;
-            }
-        };
-        citySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
-        citySpinner.setAdapter(citySpinnerArrayAdapter);
+        citySpinner = Helper.SetSpinner(MainActivity.this,city,citySpinner);
         citySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -196,9 +184,9 @@ public class MainActivity extends AppCompatActivity {
 
         //Check functions for buttons with 2*2 layout
         by = (TextView) findViewById(R.id.by);
-        searchSpinner = (Spinner) findViewById(R.id.search);
+        locationSpinner = (Spinner) findViewById(R.id.search);
         collapseDropDown = (ImageView) findViewById(R.id.custom_up_arrow);
-        spinner = (Spinner) findViewById(R.id.spinner_one);
+        specialitySpinner = (Spinner) findViewById(R.id.spinner_one);
         expandDropDown = (LinearLayout) findViewById(R.id.drop_down);
         searchButton = (ImageButton) findViewById(R.id.search_button);
         searchView = (LinearLayout) findViewById(R.id.search_view);
@@ -216,9 +204,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 who = "Doctors";
                 by.setVisibility(View.VISIBLE);
-                spinner.setVisibility(View.VISIBLE);
+                specialitySpinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                searchSpinner.setVisibility(View.VISIBLE);
+                locationSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
@@ -238,9 +226,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 who = "Test-Labs";
                 by.setVisibility(View.VISIBLE);
-                spinner.setVisibility(View.VISIBLE);
+                specialitySpinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                searchSpinner.setVisibility(View.VISIBLE);
+                locationSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
@@ -260,9 +248,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 who = "Pharmacies";
                 by.setVisibility(View.VISIBLE);
-                spinner.setVisibility(View.VISIBLE);
+                specialitySpinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                searchSpinner.setVisibility(View.VISIBLE);
+                locationSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
@@ -282,9 +270,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 who = "Vitals";
                 by.setVisibility(View.VISIBLE);
-                spinner.setVisibility(View.VISIBLE);
+                specialitySpinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                searchSpinner.setVisibility(View.VISIBLE);
+                locationSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
@@ -302,10 +290,10 @@ public class MainActivity extends AppCompatActivity {
         collapseDropDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                spinner.setVisibility(View.GONE);
+                specialitySpinner.setVisibility(View.GONE);
                 collapseDropDown.setVisibility(View.GONE);
                 searchView.setVisibility(View.GONE);
-                searchSpinner.setVisibility(View.GONE);
+                locationSpinner.setVisibility(View.GONE);
                 by.setVisibility(View.GONE);
                 searchButton.setVisibility(View.GONE);
                 groupOne.clearCheck();
@@ -317,6 +305,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        ConnectionAsyncTask specialityTask = new ConnectionAsyncTask();
         //Showing the list of filters to the users
         String[] list = new String[]{
                 "Select an item...",
@@ -324,38 +314,40 @@ public class MainActivity extends AppCompatActivity {
                 "Experience",
                 "Price",
         };
-        final List<String> spinnerList = new ArrayList<>(Arrays.asList(list));
-        // Initializing an ArrayAdapter
-        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
-                this, R.layout.spinner_item, spinnerList) {
-            @Override
-            public boolean isEnabled(int position) {
-                if (position == 0) {
-                    // Disable the first item from Spinner
-                    // First item will be use for hint
-                    return false;
-                } else {
-                    return true;
-                }
-            }
 
-            @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view;
-                if (position == 0) {
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                } else {
-                    tv.setTextColor(Color.BLACK);
-                }
-                return view;
-            }
-        };
-        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
-        spinner.setAdapter(spinnerArrayAdapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        specialitySpinner = Helper.SetSpinner(MainActivity.this,list,specialitySpinner);
+//        final List<String> spinnerList = new ArrayList<>(Arrays.asList(list));
+//        // Initializing an ArrayAdapter
+//        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
+//                this, R.layout.spinner_item, spinnerList) {
+//            @Override
+//            public boolean isEnabled(int position) {
+//                if (position == 0) {
+//                    // Disable the first item from Spinner
+//                    // First item will be use for hint
+//                    return false;
+//                } else {
+//                    return true;
+//                }
+//            }
+//
+//            @Override
+//            public View getDropDownView(int position, View convertView,
+//                                        ViewGroup parent) {
+//                View view = super.getDropDownView(position, convertView, parent);
+//                TextView tv = (TextView) view;
+//                if (position == 0) {
+//                    // Set the hint text color gray
+//                    tv.setTextColor(Color.GRAY);
+//                } else {
+//                    tv.setTextColor(Color.BLACK);
+//                }
+//                return view;
+//            }
+//        };
+//        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+//        specialitySpinner.setAdapter(spinnerArrayAdapter);
+        specialitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItemText = (String) parent.getItemAtPosition(position);
@@ -435,9 +427,9 @@ public class MainActivity extends AppCompatActivity {
 //                            }
 //                        };
 //                        LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
-//                        searchSpinner.setAdapter(LocalitySpinnerArrayAdapter);
+//                        locationSpinner.setAdapter(LocalitySpinnerArrayAdapter);
 //
-//                        searchSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//                        locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 //                            @Override
 //                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                                String selectedItemText = (String) parent.getItemAtPosition(position);
@@ -635,11 +627,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     /**
      * Inserting the pictures using
      * {@link ImageModel} Data Structure
      */
-    public ArrayList<ImageModel> fillWithData() {
+    private ArrayList<ImageModel> fillWithData() {
         ArrayList<ImageModel> imageModelArrayList = new ArrayList<>();
         ImageModel imageModel0 = new ImageModel();
         imageModel0.setId(System.currentTimeMillis());
@@ -697,7 +690,10 @@ public class MainActivity extends AppCompatActivity {
         protected JSONObject doInBackground(String... strings) {
             JSONObject result = null;
             try {
-                result = ConnectionUtil.postMethod(strings[0], strings[1]);
+                if(strings.length==2)
+                    result = ConnectionUtil.postMethod(strings[0], strings[1]);
+                else
+                    result = ConnectionUtil.postMethod(strings[0],null);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -717,11 +713,12 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            String[] localities = new String[info.length() + 1];
+            String[] localities = new String[info.length() + 2];
             if (info.length() == 0) {
                 localities[0] = "Coming Soon!";
             } else {
-                localities[0] = "Select nearest locality";
+                localities[0] = "Select your location";
+                localities[1] = "Current Location";
             }
             for (int i = 0; i < info.length(); i++) {
                 JSONObject localityList = null;
@@ -736,32 +733,10 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                localities[i + 1] = localityName;
+                localities[i + 2] = localityName;
             }
-            final List<String> LocalitySpinnerList = new ArrayList<>(Arrays.asList(localities));
-            // Initializing an ArrayAdapter
-            final ArrayAdapter<String> LocalitySpinnerArrayAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.spinner_item, LocalitySpinnerList) {
-                @Override
-                public boolean isEnabled(int position) {
-                    return position != 0;
-                }
-
-                @Override
-                public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                    View view = super.getDropDownView(position, convertView, parent);
-                    TextView tv = (TextView) view;
-                    if (position == 0) {
-                        // Set the hint text color gray
-                        tv.setTextColor(Color.GRAY);
-                    } else {
-                        tv.setTextColor(Color.BLACK);
-                    }
-                    return view;
-                }
-            };
-            LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
-            searchSpinner.setAdapter(LocalitySpinnerArrayAdapter);
-            searchSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            locationSpinner = Helper.SetSpinner(MainActivity.this, localities, locationSpinner);
+            locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String selectedItemText = (String) parent.getItemAtPosition(position);
@@ -804,7 +779,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class CustomLinearLayoutManager extends LinearLayoutManager {
+    private class CustomLinearLayoutManager extends LinearLayoutManager {
         public CustomLinearLayoutManager(Context context) {
             super(context);
         }
@@ -839,4 +814,6 @@ public class MainActivity extends AppCompatActivity {
             startSmoothScroll(linearSmoothScroller);
         }
     }
+
+
 }

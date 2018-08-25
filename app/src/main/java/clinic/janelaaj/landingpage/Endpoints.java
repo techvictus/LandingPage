@@ -15,7 +15,7 @@ public class Endpoints {
      *  Node js APIs to call ENDPOINTS
      *  Method: GET/POST, Query: query (DATA TYPE)
      */
-
     public static final String GET_LOCALITY = "getlocality"; // Method: POST, Query: cityname (String)
     public static final String GET_DOCTORS_BY_LOCATION = "getdoctorsbylocation"; // Method: POST, Query: cityname (String), localityname (String), localitylat (double), localitylong(double)
+    public static final String GET_SPECIALITY = "getspeciality"; // Method: POST
 }
