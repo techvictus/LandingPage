@@ -44,7 +44,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -59,7 +62,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
-    private String paramSelectedLocality, spinnerSelectedItem, cityName, who = "Doctors";
+    private String paramSelectedLocality, cityName, who = "Doctors", specialitySelectedId;
     private JSONArray lists;
     private double latitude, longitude;
     private JSONObject jsonResponse;
@@ -71,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
     private RadioButton doctorsButton, testLabsButton, pharmaciesButton, vitalsButton;
     private ImageButton searchButton;
     private RadioGroup groupOne, groupTwo;
+    private String[] localities, specialities;
+    private boolean locality = false;
+    private Hashtable<String, String> specialityHash;
+    private boolean getSpecialityFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
         //Showing the list of Cities, where the service is available
         citySpinner = (Spinner) findViewById(R.id.city_spinner);
         final String[] city = new String[]{
+                "Select City",
                 "NEW DELHI",
                 "GURUGRAM",
                 "NOIDA",
@@ -162,26 +170,41 @@ public class MainActivity extends AppCompatActivity {
                 "KOLKATA",
                 "HYDERABAD",
         };
-        citySpinner = Helper.SetSpinner(MainActivity.this,city,citySpinner);
+        citySpinner = Helper.SetSpinner(MainActivity.this, city, citySpinner);
         citySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItemText = (String) parent.getItemAtPosition(position);
-                // If user change the default selection
-                // First item is disable and it is used for hint
-                // Notify the selected item text
-                Toast.makeText
-                        (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
-                        .show();
-                cityName = selectedItemText;
+                if (position != 0) {
+                    String selectedItemText = (String) parent.getItemAtPosition(position);
+                    // If user change the default selection
+                    // First item is disable and it is used for hint
+                    // Notify the selected item text
+                    locality = true;
+                    Toast.makeText
+                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                            .show();
+                    cityName = selectedItemText;
+                    JSONObject js = new JSONObject();
+                    try {
+                        js.put("cityname", cityName);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    String jsString = js.toString();
+                    String url;
+                    url = Endpoints.BASE_URL + Endpoints.GET_LOCALITY;
+                    ConnectionAsyncTask localityTask = new ConnectionAsyncTask();
+                    localityTask.execute(url, jsString);
+                    //locality = false;
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 //Do Something
             }
-        });
 
+        });
         //Check functions for buttons with 2*2 layout
         by = (TextView) findViewById(R.id.by);
         locationSpinner = (Spinner) findViewById(R.id.search);
@@ -305,17 +328,50 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = (String) parent.getItemAtPosition(position);
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                // Notify the selected item text
+                Toast.makeText
+                        (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                        .show();
+                paramSelectedLocality = selectedItemText;
+                for (int i = 0; i < lists.length(); i++) {
+                    JSONObject localityList = null;
+                    try {
+                        localityList = lists.getJSONObject(i);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    String localityName = null;
+                    try {
+                        assert localityList != null;
+                        localityName = localityList.getString("llocalityname");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (paramSelectedLocality.equals(localityName)) {
+                        latitude = Double.parseDouble(localityList.optString("llocality_lat"));
+                        longitude = Double.parseDouble(localityList.optString("llocality_long"));
+                    }
+                }
+            }
 
-        ConnectionAsyncTask specialityTask = new ConnectionAsyncTask();
-        //Showing the list of filters to the users
-        String[] list = new String[]{
-                "Select an item...",
-                "Location",
-                "Experience",
-                "Price",
-        };
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
-        specialitySpinner = Helper.SetSpinner(MainActivity.this,list,specialitySpinner);
+        if(!getSpecialityFlag){
+            String url;
+            url = Endpoints.BASE_URL + Endpoints.GET_SPECIALITY;
+            ConnectionAsyncTask specialityTask = new ConnectionAsyncTask();
+            specialityTask.execute(url);
+            getSpecialityFlag = true;
+        }
 //        final List<String> spinnerList = new ArrayList<>(Arrays.asList(list));
 //        // Initializing an ArrayAdapter
 //        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
@@ -347,6 +403,7 @@ public class MainActivity extends AppCompatActivity {
 //        };
 //        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
 //        specialitySpinner.setAdapter(spinnerArrayAdapter);
+
         specialitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -358,21 +415,12 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText
                             (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                             .show();
-                    spinnerSelectedItem = selectedItemText;
+                    Log.d("id_speciality_who","hash "+specialityHash);
+                    specialitySelectedId = specialityHash.get(selectedItemText);
+                    Log.d("id_speciality_who","hash "+specialitySelectedId);
 
                     //Showing the queries according to the chosen filters {@link ConnectionAsyncTask}, {@link Endpoints}
-                    if (selectedItemText.equals("Location")) {
-                        JSONObject js = new JSONObject();
-                        try {
-                            js.put("cityname", cityName);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        String jsString = js.toString();
-                        String url;
-                        url = Endpoints.BASE_URL + Endpoints.GET_LOCALITY;
-                        ConnectionAsyncTask task = new ConnectionAsyncTask();
-                        task.execute(url, jsString);
+
 //                        JSONArray info = null;
 //                        try {
 //                            assert jsonResponse != null;
@@ -473,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
 //                        } catch (JSONException e) {
 //                            e.printStackTrace();
 //                        }
-                    }
+
 
 //                        URL url = null;
 //                        try {
@@ -617,7 +665,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent profileListIntent = new Intent(MainActivity.this, ListActivity.class);
                 profileListIntent.putExtra("CityName", cityName);
-                profileListIntent.putExtra("SpinnerSelectedItem", spinnerSelectedItem);
+                Log.d("id_speciality_who","hash "+specialitySelectedId);
+                profileListIntent.putExtra("SpecialitySelectedId", specialitySelectedId);
                 profileListIntent.putExtra("paramSelectedLocality", paramSelectedLocality);
                 profileListIntent.putExtra("paramLatitude", latitude);
                 profileListIntent.putExtra("paramLongitude", longitude);
@@ -690,10 +739,10 @@ public class MainActivity extends AppCompatActivity {
         protected JSONObject doInBackground(String... strings) {
             JSONObject result = null;
             try {
-                if(strings.length==2)
+                if (strings.length == 2)
                     result = ConnectionUtil.postMethod(strings[0], strings[1]);
                 else
-                    result = ConnectionUtil.postMethod(strings[0],null);
+                    result = ConnectionUtil.postMethod(strings[0], null);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -708,70 +757,19 @@ public class MainActivity extends AppCompatActivity {
             JSONArray info = null;
             try {
                 assert jsonResponse != null;
-                info = jsonResponse.getJSONArray("info");
+                if (locality)
+                    info = jsonResponse.getJSONArray("info");
+                else
+                    info = jsonResponse.getJSONArray("sparr");
                 lists = info;
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            String[] localities = new String[info.length() + 2];
-            if (info.length() == 0) {
-                localities[0] = "Coming Soon!";
-            } else {
-                localities[0] = "Select your location";
-                localities[1] = "Current Location";
-            }
-            for (int i = 0; i < info.length(); i++) {
-                JSONObject localityList = null;
-                try {
-                    localityList = info.getJSONObject(i);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                String localityName = null;
-                try {
-                    localityName = localityList.getString("llocalityname");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                localities[i + 2] = localityName;
-            }
-            locationSpinner = Helper.SetSpinner(MainActivity.this, localities, locationSpinner);
-            locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String selectedItemText = (String) parent.getItemAtPosition(position);
-                    // If user change the default selection
-                    // First item is disable and it is used for hint
-                    // Notify the selected item text
-                    Toast.makeText
-                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
-                            .show();
-                    paramSelectedLocality = selectedItemText;
-                    for (int i = 0; i < lists.length(); i++) {
-                        JSONObject localityList = null;
-                        try {
-                            localityList = lists.getJSONObject(i);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        String localityName = null;
-                        try {
-                            assert localityList != null;
-                            localityName = localityList.getString("llocalityname");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        if (paramSelectedLocality.equals(localityName)) {
-                            latitude = Double.parseDouble(localityList.optString("llocality_lat"));
-                            longitude = Double.parseDouble(localityList.optString("llocality_long"));
-                        }
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                }
-            });
+            if (locality)
+                GetLocalityArray(info);
+            else
+                GetSpeciality(info);
+            locality = false;
             if (progressDialog != null) {
                 progressDialog.dismiss();
                 progressDialog = null;
@@ -815,5 +813,49 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void GetLocalityArray(JSONArray info) {
+        localities = new String[info.length() + 2];
+        if (info.length() == 0) {
+            localities[0] = "Coming Soon!";
+        } else {
+            localities[0] = "Select your location";
+            localities[1] = "Current Location";
+        }
+        for (int i = 0; i < info.length(); i++) {
+            JSONObject localityList = null;
+            try {
+                localityList = info.getJSONObject(i);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            String localityName = null;
+            try {
+                localityName = localityList.getString("llocalityname");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            localities[i + 2] = localityName;
+        }
+        locationSpinner = Helper.SetSpinner(MainActivity.this, localities, locationSpinner);
+    }
 
+    private void GetSpeciality(JSONArray info) {
+        specialityHash = new Hashtable<>();
+        specialities = new String[info.length() + 1];
+        specialities[0] = "Select Speciality";
+        for (int i = 0; i < info.length(); i++) {
+            JSONObject obj = null;
+            try {
+                obj = info.getJSONObject(i);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            assert obj != null;
+            String id = obj.optString("id");
+            String name = obj.optString("name");
+            specialityHash.put(name, id);
+            specialities[i + 1] = name;
+        }
+        specialitySpinner = Helper.SetSpinner(MainActivity.this, specialities, specialitySpinner);
+    }
 }

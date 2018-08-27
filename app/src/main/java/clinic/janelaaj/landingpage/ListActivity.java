@@ -74,6 +74,8 @@ public class ListActivity extends AppCompatActivity {
         String spinnerSelectedItem = intent.getExtras().getString("SpinnerSelectedItem");
         String selectedParam = intent.getExtras().getString("paramSelectedLocality");
         String who = intent.getExtras().getString("who");
+        String specialitySelectedId = intent.getExtras().getString("SpecialitySelectedId");
+        Log.d("id_speciality_who","hai"+specialitySelectedId);
 
         TextView summary = (TextView) findViewById(R.id.summary);
 
@@ -82,8 +84,9 @@ public class ListActivity extends AppCompatActivity {
         double longitude;
         double latitude;
         if (selectedParam != null && !selectedParam.equals("Select nearest locality")) {
-            longitude = intent.getExtras().getDouble("paramLongitude");
-            latitude = intent.getExtras().getDouble("paramLatitude");
+                longitude = intent.getExtras().getDouble("paramLongitude");
+                latitude = intent.getExtras().getDouble("paramLatitude");
+
             summary.setText(Html.fromHtml("Searching for " + "<b>" + who + "</b>" + " by their " + "<b>" + spinnerSelectedItem + " near: " + "</b>" + "<br>" + "<b>" + selectedParam + "</b>"));
         } else {
             address = cityName;
@@ -135,6 +138,11 @@ public class ListActivity extends AppCompatActivity {
         }
         try {
             js.put("localitylong", longitude);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            js.put("specialityid",specialitySelectedId);
         } catch (JSONException e) {
             e.printStackTrace();
         }
