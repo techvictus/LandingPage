@@ -39,14 +39,15 @@
                 android:layout_margin="5dp"
                 android:scaleType="fitXY"
                 android:src="@drawable/book_appointment_normal" />
+
             <TextView
                 android:id="@+id/price_tag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_marginTop="40dp"
                 android:layout_marginRight="8dp"
-                android:text="₹"/>
+                android:layout_marginTop="40dp"
+                android:text="₹" />
 
             <LinearLayout
                 android:id="@+id/profile"
@@ -62,6 +63,7 @@
                     android:layout_height="wrap_content"
                     android:text="Sambit Mallick"
                     android:textAppearance="?android:textAppearanceMedium" />
+
                 <TextView
                     android:id="@+id/profile_qualification"
                     android:layout_width="wrap_content"
@@ -84,19 +86,19 @@
                 android:id="@+id/map_pic"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_marginTop="10dp"
                 android:layout_below="@id/profile"
-                android:src="@drawable/map_pic"/>
+                android:layout_marginTop="10dp"
+                android:src="@drawable/map_pic" />
 
             <TextView
                 android:id="@+id/profile_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/profile"
-                android:layout_toRightOf="@id/map_pic"
-                android:layout_marginTop="10dp"
                 android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
                 android:layout_toLeftOf="@id/down_expand"
+                android:layout_toRightOf="@id/map_pic"
                 android:text="JE Clinic, C-1, Sarita Vihar New Delhi 110002" />
 
             <ImageView
@@ -104,8 +106,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_marginTop="68dp"
                 android:layout_gravity="right"
+                android:layout_marginTop="68dp"
                 android:src="@drawable/outline_expand_more_black_36" />
 
 
@@ -131,11 +133,12 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="#9400D3"
                 android:orientation="vertical"
-                android:padding="19dp"
-                android:background="#9400D3">
+                android:padding="19dp">
 
                 <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/list_expand_profile_pic"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:layout_gravity="center"
@@ -144,7 +147,7 @@
                     app:civ_border_width="2dp" />
 
                 <TextView
-                    android:id="@+id/list_expand_doc_name"
+                    android:id="@+id/list_expand_profile_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -152,19 +155,21 @@
                     android:textAppearance="?android:textAppearanceMedium" />
 
                 <TextView
+                    android:id="@+id/list_expand_profile_qualification"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="Qualification" />
 
                 <TextView
+                    android:id="@+id/list_expand_profile_experience"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="Experience" />
 
                 <RatingBar
-                    android:id="@id/rating_bar"
+                    android:id="@+id/list_expand_rating_bar"
                     style="?android:attr/ratingBarStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -174,6 +179,7 @@
                     android:stepSize="0.5" />
 
                 <TextView
+                    android:id="@+id/list_expand_price_tag"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -182,29 +188,40 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/list_expand_profile_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:layout_marginTop="4dp"
+                android:gravity="center_horizontal"
                 android:text="Address" />
 
             <TextView
+                android:id="@+id/list_expand_charges"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Consultation Price"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/list_expand_discount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="Discount"
+                android:textAppearance="?android:textAppearanceMedium"
                 android:visibility="visible" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Charges" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <ImageView
+                    android:id="@+id/get_direction"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
@@ -213,6 +230,7 @@
 
 
                 <ImageView
+                    android:id="@+id/list_expand_book_appointment"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"

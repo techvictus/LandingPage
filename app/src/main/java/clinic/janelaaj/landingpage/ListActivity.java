@@ -74,11 +74,9 @@ public class ListActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String cityName = intent.getExtras().getString("CityName");
-        String spinnerSelectedItem = intent.getExtras().getString("SpinnerSelectedItem");
         String selectedParam = intent.getExtras().getString("paramSelectedLocality");
         String who = intent.getExtras().getString("who");
         String specialitySelectedId = intent.getExtras().getString("SpecialitySelectedId");
-        Log.d("id_speciality_who","hai"+specialitySelectedId);
 
         TextView summary = (TextView) findViewById(R.id.summary);
 
@@ -86,11 +84,11 @@ public class ListActivity extends AppCompatActivity {
         String address;
         double longitude;
         double latitude;
-        if (selectedParam != null && !selectedParam.equals("Select nearest locality")) {
+        if (selectedParam != null && !selectedParam.equals("Select your location")) {
                 longitude = intent.getExtras().getDouble("paramLongitude");
                 latitude = intent.getExtras().getDouble("paramLatitude");
 
-            summary.setText(Html.fromHtml("Searching for " + "<b>" + who + "</b>" + " by their " + "<b>" + spinnerSelectedItem + " near: " + "</b>" + "<br>" + "<b>" + selectedParam + "</b>"));
+            summary.setText(Html.fromHtml("Searching for " + "<b>" + who + "</b>" + " by their " + "<b>" +"Location near: " + "</b>" + "<br>" + "<b>" + selectedParam + "</b>"));
         } else {
             address = cityName;
             locationPoint = getLocationFromAddress(ListActivity.this, address);
