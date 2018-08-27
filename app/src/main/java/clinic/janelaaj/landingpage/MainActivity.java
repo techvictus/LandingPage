@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean locality = false;
     private Hashtable<String, String> specialityHash;
     private boolean getSpecialityFlag = false;
+    private int cityPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        cityPosition = 0;
 
         //Implementation of Navigation Drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -180,9 +183,7 @@ public class MainActivity extends AppCompatActivity {
                     // First item is disable and it is used for hint
                     // Notify the selected item text
                     locality = true;
-                    Toast.makeText
-                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
-                            .show();
+                    Toast.makeText(getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT).show();
                     cityName = selectedItemText;
                     JSONObject js = new JSONObject();
                     try {
@@ -190,12 +191,14 @@ public class MainActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    cityPosition = position;
                     String jsString = js.toString();
                     String url;
                     url = Endpoints.BASE_URL + Endpoints.GET_LOCALITY;
                     ConnectionAsyncTask localityTask = new ConnectionAsyncTask();
                     localityTask.execute(url, jsString);
                     //locality = false;
+                    locationSpinner.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -208,6 +211,8 @@ public class MainActivity extends AppCompatActivity {
         //Check functions for buttons with 2*2 layout
         by = (TextView) findViewById(R.id.by);
         locationSpinner = (Spinner) findViewById(R.id.search);
+        locationSpinner.setVisibility(View.GONE);
+
         collapseDropDown = (ImageView) findViewById(R.id.custom_up_arrow);
         specialitySpinner = (Spinner) findViewById(R.id.spinner_one);
         expandDropDown = (LinearLayout) findViewById(R.id.drop_down);
@@ -229,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                 by.setVisibility(View.VISIBLE);
                 specialitySpinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                locationSpinner.setVisibility(View.VISIBLE);
+                //locationSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
@@ -251,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                 by.setVisibility(View.VISIBLE);
                 specialitySpinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                locationSpinner.setVisibility(View.VISIBLE);
+                //locationSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
@@ -273,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
                 by.setVisibility(View.VISIBLE);
                 specialitySpinner.setVisibility(View.VISIBLE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                locationSpinner.setVisibility(View.VISIBLE);
+                //locationSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
@@ -293,9 +298,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 who = "Vitals";
                 by.setVisibility(View.VISIBLE);
-                specialitySpinner.setVisibility(View.VISIBLE);
+                specialitySpinner.setVisibility(View.GONE);
                 collapseDropDown.setVisibility(View.VISIBLE);
-                locationSpinner.setVisibility(View.VISIBLE);
+                //locationSpinner.setVisibility(View.VISIBLE);
                 expandDropDown.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
                 searchButton.setVisibility(View.VISIBLE);
@@ -304,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
                 doctorsButton.setChecked(false);
                 testLabsButton.setChecked(false);
                 vitalsButton.setChecked(true);
+
 //                Log.d("who","doc "+doctorsButton.isChecked());
 //                Log.d("who","test "+testLabsButton.isChecked());
 //                Log.d("who","phar "+pharmaciesButton.isChecked());
@@ -365,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if(!getSpecialityFlag){
+        if (!getSpecialityFlag) {
             String url;
             url = Endpoints.BASE_URL + Endpoints.GET_SPECIALITY;
             ConnectionAsyncTask specialityTask = new ConnectionAsyncTask();
@@ -415,9 +421,9 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText
                             (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                             .show();
-                    Log.d("id_speciality_who","hash "+specialityHash);
+                    Log.d("id_speciality_who", "hash " + specialityHash);
                     specialitySelectedId = specialityHash.get(selectedItemText);
-                    Log.d("id_speciality_who","hash "+specialitySelectedId);
+                    Log.d("id_speciality_who", "hash " + specialitySelectedId);
 
                     //Showing the queries according to the chosen filters {@link ConnectionAsyncTask}, {@link Endpoints}
 
@@ -663,9 +669,12 @@ public class MainActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (cityPosition == 0) {
+                    Toast.makeText(getApplicationContext(), "Please select your city!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Intent profileListIntent = new Intent(MainActivity.this, ListActivity.class);
                 profileListIntent.putExtra("CityName", cityName);
-                Log.d("id_speciality_who","hash "+specialitySelectedId);
                 profileListIntent.putExtra("SpecialitySelectedId", specialitySelectedId);
                 profileListIntent.putExtra("paramSelectedLocality", paramSelectedLocality);
                 profileListIntent.putExtra("paramLatitude", latitude);
