@@ -3,12 +3,14 @@ package clinic.janelaaj.landingpage;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -94,6 +96,14 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        try {
+            if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
         cityPosition = 0;
 
@@ -297,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 who = "Vitals";
-                by.setVisibility(View.VISIBLE);
+                by.setVisibility(View.GONE);
                 specialitySpinner.setVisibility(View.GONE);
                 collapseDropDown.setVisibility(View.VISIBLE);
                 //locationSpinner.setVisibility(View.VISIBLE);

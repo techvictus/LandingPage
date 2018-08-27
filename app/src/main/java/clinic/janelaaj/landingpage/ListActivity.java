@@ -3,13 +3,17 @@ package clinic.janelaaj.landingpage;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Base64;
@@ -82,11 +86,30 @@ public class ListActivity extends AppCompatActivity {
 
         LatLng locationPoint;
         String address;
-        double longitude;
-        double latitude;
+        double longitude = 0;
+        double latitude = 0;
         if (selectedParam != null && !selectedParam.equals("Select your location")) {
-                longitude = intent.getExtras().getDouble("paramLongitude");
-                latitude = intent.getExtras().getDouble("paramLatitude");
+                if(selectedParam.equals("Current Location")){
+                    try {
+                        if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
+                            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+                        }
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    GpsTracker gpsTracker = new GpsTracker(ListActivity.this);
+                    if(gpsTracker.canGetLocation()){
+                        latitude = gpsTracker.getLatitude();
+                        longitude = gpsTracker.getLongitude();
+                    }else{
+                        gpsTracker.showSettingsAlert();
+                    }
+                }
+                else {
+                    longitude = intent.getExtras().getDouble("paramLongitude");
+                    latitude = intent.getExtras().getDouble("paramLatitude");
+                }
 
             summary.setText(Html.fromHtml("Searching for " + "<b>" + who + "</b>" + " by their " + "<b>" +"Location near: " + "</b>" + "<br>" + "<b>" + selectedParam + "</b>"));
         } else {
@@ -340,6 +363,9 @@ public class ListActivity extends AppCompatActivity {
                 assert obj != null;
                 String doctorId = obj.optString("ldoctorid");
                 String doctorName = obj.optString("ldoctorname");
+                String doctorGender = obj.optString("lgender");
+                String doctorExperience = obj.optString("lexperience");
+                String doctorSpeciality = obj.optString("lspeciality");
                 byte[] decodedString = Base64.decode(obj.optString("ldoctorphoto"), Base64.DEFAULT);
                 Bitmap doctorphoto = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 //doctorImage.setImageBitmap(decodedByte);
@@ -369,7 +395,7 @@ public class ListActivity extends AppCompatActivity {
                 String normalamount = obj.optString("lnormalamount");
                 String discountedamount = obj.optString("ldiscountedamount");
                 String discountflag = obj.optString("ldiscountflag");
-                profiles.add(new Profile(doctorId, doctorName, doctorphoto, mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
+                profiles.add(new Profile(doctorId, doctorName, doctorGender, doctorExperience, doctorSpeciality, doctorphoto, mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
             }
             ProfileAdapter adapter = new ProfileAdapter(ListActivity.this, profiles);
             ListView profileListView = (ListView) findViewById(R.id.list);

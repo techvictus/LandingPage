@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,8 +43,8 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
 
         TextView docName = (TextView) listItemView.findViewById(R.id.doc_name);
         TextView listExpandDocName = (TextView) listItemView.findViewById(R.id.list_expand_profile_name);
-        docName.setText(currentProfile.getDoctorName());
-        listExpandDocName.setText(currentProfile.getDoctorName());
+        docName.setText(Html.fromHtml( "<b>" + currentProfile.getDoctorName() + "</b>" + " (" +currentProfile.getGender()+", "+currentProfile.getSpeciality()));
+        listExpandDocName.setText(Html.fromHtml( "<b>" + currentProfile.getDoctorName() + "</b>" + " (" +currentProfile.getGender()+", "+currentProfile.getSpeciality()));
 
         TextView docQualification = (TextView) listItemView.findViewById(R.id.profile_qualification);
         TextView listExpandDocQualification = (TextView) listItemView.findViewById(R.id.list_expand_profile_qualification);
@@ -64,6 +65,11 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
             qualification += "No Information Available";
         docQualification.setText(qualification);
         listExpandDocQualification.setText(qualification);
+
+        TextView docExp = (TextView) listItemView.findViewById(R.id.profile_experience);
+        TextView listExpandDocExp = (TextView) listItemView.findViewById(R.id.list_expand_profile_experience);
+        docExp.setText(currentProfile.getExperience());
+        listExpandDocExp.setText(currentProfile.getExperience());
 
         TextView docAddress = (TextView) listItemView.findViewById(R.id.profile_address);
         TextView listExpandDocAddress = (TextView) listItemView.findViewById(R.id.list_expand_profile_address);
