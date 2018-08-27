@@ -1,11 +1,13 @@
 package clinic.janelaaj.landingpage;
 
+import android.graphics.Bitmap;
+
 import java.sql.Blob;
 
 public class Profile {
     private String mDoctorid;
     private String mDoctorName;
-    private String mDoctorPhoto;
+    private Bitmap mDoctorPhoto;
     private String mMbbsflag;
     private String mMdflag;
     private String mMsflag;
@@ -19,7 +21,7 @@ public class Profile {
     private String mDiscountedamount;
     private String mDiscountflag;
 
-    public Profile(String doctorid, String doctorname, String doctorPhoto, String mbbsflag, String mdflag, String msflag, String cliniclocationname, String addressline1, String addressline2, String city, String pincode, String rating, String normalamount, String discountedamount, String discountflag) {
+    public Profile(String doctorid, String doctorname, Bitmap doctorPhoto, String mbbsflag, String mdflag, String msflag, String cliniclocationname, String addressline1, String addressline2, String city, String pincode, String rating, String normalamount, String discountedamount, String discountflag) {
         mDoctorid = doctorid;
         mDoctorName = doctorname;
         mDoctorPhoto = doctorPhoto;
@@ -45,7 +47,7 @@ public class Profile {
         return mDoctorName;
     }
 
-    public String getDoctorPhoto() {
+    public Bitmap getDoctorPhoto() {
         return mDoctorPhoto;
     }
 

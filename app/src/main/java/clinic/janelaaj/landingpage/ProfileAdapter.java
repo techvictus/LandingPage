@@ -2,6 +2,8 @@ package clinic.janelaaj.landingpage;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,9 @@ public class ProfileAdapter extends ArrayAdapter<Profile>{
         }
 
         Profile currentProfile = getItem(position);
+
+        ImageView doccPhoto = (ImageView) listItemView.findViewById(R.id.profile_pic);
+        doccPhoto.setImageBitmap(currentProfile.getDoctorPhoto());
 
         TextView docName = (TextView) listItemView.findViewById(R.id.doc_name);
         docName.setText(currentProfile.getDoctorName());

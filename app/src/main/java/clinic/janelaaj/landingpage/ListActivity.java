@@ -3,6 +3,8 @@ package clinic.janelaaj.landingpage;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
@@ -10,6 +12,7 @@ import android.os.Bundle;
 
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -339,6 +342,9 @@ public class ListActivity extends AppCompatActivity {
                 assert obj != null;
                 String doctorId = obj.optString("ldoctorid");
                 String doctorName = obj.optString("ldoctorname");
+                byte[] decodedString = Base64.decode(obj.optString("ldoctorphoto"), Base64.DEFAULT);
+                Bitmap doctorphoto = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                //doctorImage.setImageBitmap(decodedByte);
 //                String doctorPhotoString = obj.optString("ldoctorphoto");
 //                Log.d("img",doctorPhotoString);
 //                byte[] byteData = new byte[0];//Better to specify encoding
@@ -365,7 +371,7 @@ public class ListActivity extends AppCompatActivity {
                 String normalamount = obj.optString("lnormalamount");
                 String discountedamount = obj.optString("ldiscountedamount");
                 String discountflag = obj.optString("ldiscountflag");
-                profiles.add(new Profile(doctorId, doctorName, "test", mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
+                profiles.add(new Profile(doctorId, doctorName, doctorphoto, mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
             }
             ProfileAdapter adapter = new ProfileAdapter(ListActivity.this, profiles);
             ListView profileListView = (ListView) findViewById(R.id.list);
