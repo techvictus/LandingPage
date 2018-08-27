@@ -13,7 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
-        android:elevation="8dp">
+        app:cardCornerRadius="8dp"
+        app:cardElevation="6dp">
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -61,7 +62,7 @@
                     android:id="@+id/doc_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sambit Mallick"/>
+                    android:text="Sambit Mallick" />
 
                 <TextView
                     android:id="@+id/profile_qualification"
@@ -124,10 +125,12 @@
     <android.support.design.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
         android:layout_marginTop="4dp"
-        android:elevation="8dp">
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
 
         <LinearLayout
             android:id="@+id/list_expand"
