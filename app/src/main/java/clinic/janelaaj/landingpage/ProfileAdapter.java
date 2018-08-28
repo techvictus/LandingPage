@@ -38,8 +38,8 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
 
         ImageView docPhoto = (ImageView) listItemView.findViewById(R.id.profile_pic);
         ImageView listExpandDocPhoto = (ImageView) listItemView.findViewById(R.id.list_expand_profile_pic);
-        //docPhoto.setImageBitmap(currentProfile.getDoctorPhoto());
-        //listExpandDocPhoto.setImageBitmap(currentProfile.getDoctorPhoto());
+        docPhoto.setImageBitmap(currentProfile.getDoctorPhoto());
+        listExpandDocPhoto.setImageBitmap(currentProfile.getDoctorPhoto());
 
         TextView docName = (TextView) listItemView.findViewById(R.id.doc_name);
         TextView listExpandDocName = (TextView) listItemView.findViewById(R.id.list_expand_profile_name);

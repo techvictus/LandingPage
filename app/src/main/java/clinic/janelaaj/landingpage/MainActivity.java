@@ -39,16 +39,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -205,9 +213,10 @@ public class MainActivity extends AppCompatActivity {
                     String jsString = js.toString();
                     String url;
                     url = Endpoints.BASE_URL + Endpoints.GET_LOCALITY;
-                    ConnectionAsyncTask localityTask = new ConnectionAsyncTask();
-                    localityTask.execute(url, jsString);
-                    //locality = false;
+                    DoingNetworkStuff(url);
+//                    ConnectionAsyncTask localityTask = new ConnectionAsyncTask();
+//                    localityTask.execute(url, jsString);
+//                    //locality = false;
                     locationSpinner.setVisibility(View.VISIBLE);
                 }
             }
@@ -384,8 +393,9 @@ public class MainActivity extends AppCompatActivity {
         if (!getSpecialityFlag) {
             String url;
             url = Endpoints.BASE_URL + Endpoints.GET_SPECIALITY;
-            ConnectionAsyncTask specialityTask = new ConnectionAsyncTask();
-            specialityTask.execute(url);
+            DoingNetworkStuff(url);
+//            ConnectionAsyncTask specialityTask = new ConnectionAsyncTask();
+//            specialityTask.execute(url);
             getSpecialityFlag = true;
         }
 //        final List<String> spinnerList = new ArrayList<>(Arrays.asList(list));
@@ -683,6 +693,9 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Please select your city!", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                localities = new String[0];
+                specialities = new String[0];
+                specialityHash = new Hashtable<>();
                 Intent profileListIntent = new Intent(MainActivity.this, ListActivity.class);
                 profileListIntent.putExtra("CityName", cityName);
                 profileListIntent.putExtra("SpecialitySelectedId", specialitySelectedId);
@@ -876,5 +889,52 @@ public class MainActivity extends AppCompatActivity {
             specialities[i + 1] = name;
         }
         specialitySpinner = Helper.SetSpinner(MainActivity.this, specialities, specialitySpinner);
+    }
+
+    private void DoingNetworkStuff(String url){
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("abcde", "locality " + locality);
+                        try {
+                            if(locality) {
+                                JSONArray jsonResponse = new JSONObject(response).getJSONArray("info");
+                                Log.d("abcde", "info " + jsonResponse);
+                                lists = jsonResponse;
+                                GetLocalityArray(jsonResponse);
+                            }
+                            else {
+                                JSONArray jsonResponse = new JSONObject(response).getJSONArray("sparr");
+                                Log.d("abcde", "sparr " + jsonResponse);
+                                GetSpeciality(jsonResponse);
+                            }
+                            locality = false;
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<>();
+                // the POST parameters:
+                if (locality)
+                    params.put("cityname", cityName);
+                else{
+                    return null;
+                }
+                return params;
+            }
+        };
+        Volley.newRequestQueue(this).add(postRequest);
     }
 }
