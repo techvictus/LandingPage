@@ -365,7 +365,7 @@ public class ListActivity extends AppCompatActivity {
                 String doctorName = obj.optString("ldoctorname");
                 String doctorGender = obj.optString("lgender");
                 String doctorExperience = obj.optString("lexperience");
-                String doctorSpeciality = obj.optString("lspeciality");
+                String doctorSpeciality = obj.optString("lspecialityname");
                 byte[] decodedString = Base64.decode(obj.optString("ldoctorphoto"), Base64.DEFAULT);
                 Bitmap doctorphoto = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 //doctorImage.setImageBitmap(decodedByte);

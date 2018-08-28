@@ -43,8 +43,8 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
 
         TextView docName = (TextView) listItemView.findViewById(R.id.doc_name);
         TextView listExpandDocName = (TextView) listItemView.findViewById(R.id.list_expand_profile_name);
-        docName.setText(Html.fromHtml( "<b>" + currentProfile.getDoctorName() + "</b>" + " (" +currentProfile.getGender()+", "+currentProfile.getSpeciality()));
-        listExpandDocName.setText(Html.fromHtml( "<b>" + currentProfile.getDoctorName() + "</b>" + " (" +currentProfile.getGender()+", "+currentProfile.getSpeciality()));
+        docName.setText(Html.fromHtml( "<b>" + "Dr. "+currentProfile.getDoctorName() + "</b>" + " (" +currentProfile.getGender()+", "+currentProfile.getSpeciality()+")"));
+        listExpandDocName.setText(Html.fromHtml( "<b>" + "Dr. "+ currentProfile.getDoctorName() + "</b>" +"<br>"+ " (" +currentProfile.getGender()+", "+currentProfile.getSpeciality()+")"));
 
         TextView docQualification = (TextView) listItemView.findViewById(R.id.profile_qualification);
         TextView listExpandDocQualification = (TextView) listItemView.findViewById(R.id.list_expand_profile_qualification);
