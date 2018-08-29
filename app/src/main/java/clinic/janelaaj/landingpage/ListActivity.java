@@ -22,11 +22,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.support.v7.app.AlertDialog;
+import android.widget.Toast;
 
 
 import com.android.volley.Request;
@@ -47,6 +52,7 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +69,15 @@ public class ListActivity extends AppCompatActivity {
     private ArrayList<Profile> profiles;
     private String DM_Role, cityName, selectedParam, who, specialitySelectedId;
     double longitude = 0, latitude = 0;
+    private Button btnLoadMore;
+    private ListView profileListView;
+    private String[] localities, specialities;
+    private Spinner locationSpinner, specialitySpinner;
+    private ImageButton searchButton;
+    private HashMap<String, String> specialityHash;
+    private LatLng point;
+    private HashMap<String, LatLng> pointHash;
+    private boolean selectedLocationSpinner, selectedSpecialitySpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +106,293 @@ public class ListActivity extends AppCompatActivity {
         selectedParam = intent.getExtras().getString("paramSelectedLocality");
         who = intent.getExtras().getString("who");
         specialitySelectedId = intent.getExtras().getString("SpecialitySelectedId");
+        localities = intent.getExtras().getStringArray("localities");
+        specialities = intent.getExtras().getStringArray("specialities");
+        specialityHash = (HashMap<String, String>) intent.getSerializableExtra("specialityHash");
+        //Log.d("abcdhash", String.valueOf(specialityHash.keySet()));
+        pointHash = (HashMap<String, LatLng>) intent.getSerializableExtra("pointHash");
+        //Log.d("abcdhash", "???" + String.valueOf(pointHash.keySet()));
+        locationSpinner = (Spinner) findViewById(R.id.search);
+        specialitySpinner = (Spinner) findViewById(R.id.spinner_one);
+        locationSpinner = Helper.SetSpinner(ListActivity.this, localities, locationSpinner);
+        locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = (String) parent.getItemAtPosition(position);
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                // Notify the selected item text
+                Toast.makeText
+                        (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                        .show();
+                selectedParam = selectedItemText;
+                if (position > 0) {
+                    selectedLocationSpinner = true;
+                    point = pointHash.get(selectedParam);
+                    longitude = point.longitude;
+                    latitude = point.latitude;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        specialitySpinner = Helper.SetSpinner(ListActivity.this, specialities, specialitySpinner);
+        specialitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = (String) parent.getItemAtPosition(position);
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                if (position > 0) {
+                    selectedLocationSpinner = true;
+                    // Notify the selected item text
+                    Toast.makeText
+                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                            .show();
+                    Log.d("id_speciality_who", "hash " + specialityHash);
+                    specialitySelectedId = specialityHash.get(selectedItemText);
+                    Log.d("id_speciality_who", "hash " + specialitySelectedId);
+
+                    //Showing the queries according to the chosen filters {@link ConnectionAsyncTask}, {@link Endpoints}
+
+//                        JSONArray info = null;
+//                        try {
+//                            assert jsonResponse != null;
+//                            info = jsonResponse.getJSONArray("info");
+//                            lists = info;
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        String[] localities = new String[info.length() + 1];
+//                        if (info.length() == 0) {
+//                            localities[0] = "Coming Soon!";
+//                        } else {
+//                            localities[0] = "Select nearest locality";
+//                        }
+//                        for (int i = 0; i < info.length(); i++) {
+//                            JSONObject localityList = null;
+//                            try {
+//                                localityList = info.getJSONObject(i);
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//                            String localityName = null;
+//                            try {
+//                                localityName = localityList.getString("llocalityname");
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//                            localities[i + 1] = localityName;
+//                        }
+//                        final List<String> LocalitySpinnerList = new ArrayList<>(Arrays.asList(localities));
+//
+//                        // Initializing an ArrayAdapter
+//                        final ArrayAdapter<String> LocalitySpinnerArrayAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.spinner_item, LocalitySpinnerList) {
+//                            @Override
+//                            public boolean isEnabled(int position) {
+//                                return position != 0;
+//                            }
+//
+//                            @Override
+//                            public View getDropDownView(int position, View convertView,
+//                                                        ViewGroup parent) {
+//                                View view = super.getDropDownView(position, convertView, parent);
+//                                TextView tv = (TextView) view;
+//                                if (position == 0) {
+//                                    // Set the hint text color gray
+//                                    tv.setTextColor(Color.GRAY);
+//                                } else {
+//                                    tv.setTextColor(Color.BLACK);
+//                                }
+//                                return view;
+//                            }
+//                        };
+//                        LocalitySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+//                        locationSpinner.setAdapter(LocalitySpinnerArrayAdapter);
+//
+//                        locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//                            @Override
+//                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                                String selectedItemText = (String) parent.getItemAtPosition(position);
+//                                // If user change the default selection
+//                                // First item is disable and it is used for hint
+//                                // Notify the selected item text
+//                                Toast.makeText
+//                                        (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+//                                        .show();
+//                                paramSelectedLocality = selectedItemText;
+//                                for (int i = 0; i < lists.length(); i++) {
+//                                    JSONObject localityList = null;
+//                                    try {
+//                                        localityList = lists.getJSONObject(i);
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                    String localityName = null;
+//                                    try {
+//                                        assert localityList != null;
+//                                        localityName = localityList.getString("llocalityname");
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                    if(paramSelectedLocality.equals(localityName)){
+//                                        latitude = Double.parseDouble(localityList.optString("llocality_lat"));
+//                                        longitude = Double.parseDouble(localityList.optString("llocality_long"));
+//                                    }
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onNothingSelected(AdapterView<?> parent) {
+//
+//                            }
+//                        });
+
+//
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+
+
+//                        URL url = null;
+//                        try {
+//                            url = new URL("http://35.200.243.43:3000/getlocality");
+//                        } catch (MalformedURLException e) {
+//                            e.printStackTrace();
+//                        }
+//                        HttpURLConnection conn = null;
+//                        try {
+//                            assert url != null;
+//                            conn = (HttpURLConnection)url.openConnection();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        if ( conn != null ) {
+//                            //Whatever you wants to post...
+//                            String strPostData = "CityName="+"New Delhi";
+//
+//                            try {
+//                                conn.setRequestMethod("POST");
+//                            } catch (ProtocolException e) {
+//                                e.printStackTrace();
+//                            }
+//                            conn.setRequestProperty("User-Agent", USER_AGENT);
+//                            conn.setRequestProperty("Accept-Language", "en-GB,en;q=0.5");
+//                            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+//                            conn.setRequestProperty("Content-length", Integer.toString(strPostData.length()));
+//                            conn.setRequestProperty("Content-Language", "en-GB");
+//                            conn.setRequestProperty("charset", "utf-8");
+//                            conn.setUseCaches(false);
+//                            conn.setDoOutput(true);
+//
+//                            DataOutputStream dos = null;
+//                            try {
+//                                dos = new DataOutputStream(conn.getOutputStream());
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                            try {
+//                                assert dos != null;
+//                                dos.writeBytes(strPostData);
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                            try {
+//                                dos.flush();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                            try {
+//                                dos.close();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                            int intResponse = 0;
+//                            try {
+//                                intResponse = conn.getResponseCode();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                            System.out.println("\nSending 'POST' to " + url.toString() +
+//                                    ", data: " + strPostData + ", rc: " + intResponse);;
+//                        }
+//                    }
+//                        String city = null;
+//                        try {
+//                            city = URLEncoder.encode("New Delhi", "UTF-8");
+//                        } catch (UnsupportedEncodingException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        URL url = null;
+//                        try {
+//                            url = new URL("http://35.200.243.43:3000/getlocality");
+//                            Log.d("Main","Ok");
+//                        } catch (MalformedURLException e) {
+//                            e.printStackTrace();
+//                        }
+//                        URLConnection connection = null;
+//                        try {
+//                            assert url != null;
+//                            connection = url.openConnection();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        assert connection != null;
+//                        connection.setDoOutput(true);
+//
+//                        OutputStreamWriter out = null;
+//                        try {
+//                            out = new OutputStreamWriter(
+//                                    connection.getOutputStream());
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        try {
+//                            out.write("CityName=" + city);
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        try {
+//                            out.close();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        BufferedReader in = null;
+//                        try {
+//                            in = new BufferedReader(
+//                                    new InputStreamReader(
+//                                            connection.getInputStream()));
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        String decodedString=null;
+//                        assert in != null;
+//                        try {
+//                            while ((decodedString = in.readLine()) != null) {
+//                                System.out.println(decodedString);
+//                            }
+//                        }catch (IOException){
+//
+//                        }
+//                    }
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         TextView summary = (TextView) findViewById(R.id.summary);
 
@@ -100,7 +402,7 @@ public class ListActivity extends AppCompatActivity {
         latitude = 0;
         if (selectedParam != null && !selectedParam.equals("Select your location")) {
             if (selectedParam.equals("Current Location")) {
-                Log.d("abcde","naa");
+                Log.d("abcde", "naa");
                 try {
                     if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
@@ -123,7 +425,7 @@ public class ListActivity extends AppCompatActivity {
 
             summary.setText(Html.fromHtml("Searching for " + "<b>" + who + "</b>" + " by their " + "<b>" + "Location near: " + "</b>" + "<br>" + "<b>" + selectedParam + "</b>"));
         } else {
-            Log.d("abcde","haan");
+            Log.d("abcde", "haan");
             address = cityName;
             locationPoint = getLocationFromAddress(ListActivity.this, address);
             longitude = locationPoint.longitude;
@@ -140,6 +442,34 @@ public class ListActivity extends AppCompatActivity {
             DM_Role = "1";
         Log.d("res1234", DM_Role);
         Log.d("res1234", who);
+
+        searchButton = (ImageButton) findViewById(R.id.search_button_list_activity);
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!selectedLocationSpinner && !selectedSpecialitySpinner){
+                    Toast.makeText(getApplicationContext(), "Please select your locality or speciality!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent profileListIntent = new Intent(ListActivity.this, ListActivity.class);
+                profileListIntent.putExtra("CityName", cityName);
+                profileListIntent.putExtra("SpecialitySelectedId", specialitySelectedId);
+                profileListIntent.putExtra("paramSelectedLocality", selectedParam);
+                profileListIntent.putExtra("paramLatitude", latitude);
+                profileListIntent.putExtra("paramLongitude", longitude);
+                profileListIntent.putExtra("who", who);
+                profileListIntent.putExtra("localities", localities);
+                profileListIntent.putExtra("specialities", specialities);
+                profileListIntent.putExtra("specialityHash", specialityHash);
+                profileListIntent.putExtra("pointHash", pointHash);
+                localities = new String[0];
+                specialities = new String[0];
+                specialityHash = new HashMap<>();
+                pointHash = new HashMap<>();
+                startActivity(profileListIntent);
+            }
+        });
 //        JSONObject js = new JSONObject();
 //        try {
 //            js.put("dmrole", DM_Role);
@@ -410,7 +740,10 @@ public class ListActivity extends AppCompatActivity {
                 profiles.add(new Profile(doctorId, doctorName, doctorGender, doctorExperience, doctorSpeciality, doctorphoto, mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
             }
             ProfileAdapter adapter = new ProfileAdapter(ListActivity.this, profiles);
-            ListView profileListView = (ListView) findViewById(R.id.list);
+            profileListView = (ListView) findViewById(R.id.list);
+            btnLoadMore = new Button(ListActivity.this);
+            btnLoadMore.setText("Load More");
+            profileListView.addFooterView(btnLoadMore);
             profileListView.setAdapter(adapter);
 
             if (progressDialog != null) {
@@ -456,7 +789,7 @@ public class ListActivity extends AppCompatActivity {
                                 String normalamount = obj.optString("lnormalamount");
                                 String discountedamount = obj.optString("ldiscountedamount");
                                 String discountflag = obj.optString("ldiscountflag");
-                                Log.d("abcde",doctorId+ doctorName+ doctorGender+ doctorExperience+ doctorSpeciality+ doctorphoto+ mbbsflag+ mdflag+ msflag+ cliniclocationname+ addressline1+ addressline2+ city+ pincode+ rating+ normalamount+ discountedamount+ discountflag);
+                                Log.d("abcde", doctorId + doctorName + doctorGender + doctorExperience + doctorSpeciality + doctorphoto + mbbsflag + mdflag + msflag + cliniclocationname + addressline1 + addressline2 + city + pincode + rating + normalamount + discountedamount + discountflag);
                                 profiles.add(new Profile(doctorId, doctorName, doctorGender, doctorExperience, doctorSpeciality, doctorphoto, mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
                             }
                             ProfileAdapter adapter = new ProfileAdapter(ListActivity.this, profiles);
@@ -495,26 +828,23 @@ public class ListActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(postRequest);
     }
 
-    public String resizeBase64Image(String base64image){
-        byte [] encodeByte=Base64.decode(base64image.getBytes(),Base64.DEFAULT);
-        BitmapFactory.Options options=new BitmapFactory.Options();
+    public String resizeBase64Image(String base64image) {
+        byte[] encodeByte = Base64.decode(base64image.getBytes(), Base64.DEFAULT);
+        BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPurgeable = true;
-        Bitmap img = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length,options);
+        Bitmap img = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length, options);
 
 
-        if(img.getHeight() <= 400 && img.getWidth() <= 400){
+        if (img.getHeight() <= 400 && img.getWidth() <= 400) {
             return base64image;
         }
         img = Bitmap.createScaledBitmap(img, 50, 50, false);
 
-        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
-        img.compress(Bitmap.CompressFormat.PNG,100, baos);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        img.compress(Bitmap.CompressFormat.PNG, 100, baos);
 
-        byte [] b=baos.toByteArray();
+        byte[] b = baos.toByteArray();
         System.gc();
         return Base64.encodeToString(b, Base64.NO_WRAP);
-
     }
-
-
 }

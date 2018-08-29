@@ -65,6 +65,12 @@
                     android:text="Sambit Mallick" />
 
                 <TextView
+                    android:id="@+id/gen_spc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(M, ENT)" />
+
+                <TextView
                     android:id="@+id/profile_qualification"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -163,6 +169,14 @@
                     android:textColor="@android:color/white"
                     android:text="Dr. Ashish Ahuja"
                     android:textAppearance="?android:textAppearanceMedium" />
+
+                <TextView
+                    android:id="@+id/list_expand_gen_spc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@android:color/white"
+                    android:text="(M, ENT)" />
 
                 <TextView
                     android:id="@+id/list_expand_profile_qualification"

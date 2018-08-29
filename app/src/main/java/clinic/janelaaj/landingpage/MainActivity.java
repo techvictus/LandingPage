@@ -44,6 +44,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -86,7 +87,9 @@ public class MainActivity extends AppCompatActivity {
     private RadioGroup groupOne, groupTwo;
     private String[] localities, specialities;
     private boolean locality = false;
-    private Hashtable<String, String> specialityHash;
+    LatLng point;
+    private HashMap<String, String> specialityHash;
+    private HashMap<String, LatLng> pointHash;
     private boolean getSpecialityFlag = false;
     private int cityPosition;
 
@@ -364,6 +367,7 @@ public class MainActivity extends AppCompatActivity {
                         (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                         .show();
                 paramSelectedLocality = selectedItemText;
+                pointHash = new HashMap<>();
                 for (int i = 0; i < lists.length(); i++) {
                     JSONObject localityList = null;
                     try {
@@ -382,7 +386,12 @@ public class MainActivity extends AppCompatActivity {
                         latitude = Double.parseDouble(localityList.optString("llocality_lat"));
                         longitude = Double.parseDouble(localityList.optString("llocality_long"));
                     }
+
+                    point = new LatLng(Double.parseDouble(localityList.optString("llocality_lat")), Double.parseDouble(localityList.optString("llocality_long")));
+                    Log.d("abcdehash", localityName+ String.valueOf(point.latitude)+ String.valueOf(point.longitude));
+                    pointHash.put(localityName,point);
                 }
+                Log.d("abcdehash", "???"+ String.valueOf(pointHash.keySet()));
             }
 
             @Override
@@ -685,7 +694,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Passing values to the {@link ListActivity}
-        final ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+        ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -693,9 +702,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Please select your city!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                localities = new String[0];
-                specialities = new String[0];
-                specialityHash = new Hashtable<>();
                 Intent profileListIntent = new Intent(MainActivity.this, ListActivity.class);
                 profileListIntent.putExtra("CityName", cityName);
                 profileListIntent.putExtra("SpecialitySelectedId", specialitySelectedId);
@@ -703,6 +709,15 @@ public class MainActivity extends AppCompatActivity {
                 profileListIntent.putExtra("paramLatitude", latitude);
                 profileListIntent.putExtra("paramLongitude", longitude);
                 profileListIntent.putExtra("who", who);
+                profileListIntent.putExtra("localities",localities);
+                profileListIntent.putExtra("specialities",specialities);
+                profileListIntent.putExtra("specialityHash",specialityHash);
+                profileListIntent.putExtra("pointHash",pointHash);
+                Log.d("abcdehash", String.valueOf(pointHash.size()));
+                localities = new String[0];
+                specialities = new String[0];
+                specialityHash = new HashMap<>();
+                pointHash = new HashMap<>();
                 startActivity(profileListIntent);
             }
         });
@@ -872,7 +887,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void GetSpeciality(JSONArray info) {
-        specialityHash = new Hashtable<>();
+        specialityHash = new HashMap<>();
         specialities = new String[info.length() + 1];
         specialities[0] = "Select Speciality";
         for (int i = 0; i < info.length(); i++) {

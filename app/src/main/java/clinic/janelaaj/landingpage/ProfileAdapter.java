@@ -43,8 +43,13 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
 
         TextView docName = (TextView) listItemView.findViewById(R.id.doc_name);
         TextView listExpandDocName = (TextView) listItemView.findViewById(R.id.list_expand_profile_name);
-        docName.setText(Html.fromHtml( "<b>" + "Dr. "+currentProfile.getDoctorName() + "</b>" + " (" +currentProfile.getGender()+", "+currentProfile.getSpeciality()+")"));
-        listExpandDocName.setText(Html.fromHtml( "<b>" + "Dr. "+ currentProfile.getDoctorName() + "</b>" +"<br>"+ " (" +currentProfile.getGender()+", "+currentProfile.getSpeciality()+")"));
+        docName.setText(Html.fromHtml( "<b>" + "Dr. "+currentProfile.getDoctorName()+"</b>"));
+        listExpandDocName.setText(Html.fromHtml( "<b>" + "Dr. "+ currentProfile.getDoctorName() + "</b>"));
+
+        TextView docGenSpc = (TextView) listItemView.findViewById(R.id.gen_spc);
+        TextView listExpandDocGenSpc = (TextView) listItemView.findViewById(R.id.list_expand_gen_spc);
+        docGenSpc.setText(currentProfile.getGender()+", "+currentProfile.getSpeciality());
+        listExpandDocGenSpc.setText(currentProfile.getGender()+", "+currentProfile.getSpeciality());
 
         TextView docQualification = (TextView) listItemView.findViewById(R.id.profile_qualification);
         TextView listExpandDocQualification = (TextView) listItemView.findViewById(R.id.list_expand_profile_qualification);
@@ -68,7 +73,7 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
 
         TextView docExp = (TextView) listItemView.findViewById(R.id.profile_experience);
         TextView listExpandDocExp = (TextView) listItemView.findViewById(R.id.list_expand_profile_experience);
-        docExp.setText(currentProfile.getExperience());
+        docExp.setText(currentProfile.getExperience()+" Years of experience");
         listExpandDocExp.setText(currentProfile.getExperience());
 
         TextView docAddress = (TextView) listItemView.findViewById(R.id.profile_address);
