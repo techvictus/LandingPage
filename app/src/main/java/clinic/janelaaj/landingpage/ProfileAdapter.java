@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,14 +15,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.app.Activity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileAdapter extends ArrayAdapter<Profile> {
+    private Context context;
 
     public ProfileAdapter(Context context, ArrayList<Profile> profiles) {
         super(context, 0, profiles);
+        this.context = context;
     }
 
     @Override
@@ -97,6 +101,22 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
         docAddress.setText(address);
         listExpandDocAddress.setText(address);
 
+        ImageView getDirection = (ImageView) listItemView.findViewById(R.id.get_direction);
+        if(address.equals("No Information Available"))
+            getDirection.setClickable(false);
+        final String finalAddress = address;
+        getDirection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Uri gmmIntentUri = Uri.parse("geo:0,0?q="+ finalAddress);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                //if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                    context.startActivity(mapIntent);
+                //}
+            }
+        });
+
         TextView priceTag = (TextView) listItemView.findViewById(R.id.price_tag);
         TextView listExpandPriceTag = (TextView) listItemView.findViewById(R.id.list_expand_price_tag);
         int price = Integer.valueOf(currentProfile.getNormalamount());
@@ -126,7 +146,7 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
         final LinearLayout expand = (LinearLayout) listItemView.findViewById(R.id.list_expand);
         ImageView upCollapse = (ImageView) listItemView.findViewById(R.id.up_collapse);
         ImageView downExpand = (ImageView) listItemView.findViewById(R.id.down_expand);
-        downExpand.setOnClickListener(new View.OnClickListener() {
+        collapse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -134,7 +154,7 @@ public class ProfileAdapter extends ArrayAdapter<Profile> {
                 expand.setVisibility(View.VISIBLE);
             }
         });
-        upCollapse.setOnClickListener(new View.OnClickListener() {
+        expand.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 collapse.setVisibility(View.VISIBLE);
