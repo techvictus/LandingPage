@@ -366,6 +366,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText
                         (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                         .show();
+                if(position==0)
+                    return;
                 paramSelectedLocality = selectedItemText;
                 pointHash = new HashMap<>();
                 for (int i = 0; i < lists.length(); i++) {
@@ -713,7 +715,7 @@ public class MainActivity extends AppCompatActivity {
                 profileListIntent.putExtra("specialities",specialities);
                 profileListIntent.putExtra("specialityHash",specialityHash);
                 profileListIntent.putExtra("pointHash",pointHash);
-                Log.d("abcdehash", String.valueOf(pointHash.size()));
+                //Log.d("abcdehash", String.valueOf(pointHash.size()));
                 localities = new String[0];
                 specialities = new String[0];
                 specialityHash = new HashMap<>();
@@ -810,7 +812,9 @@ public class MainActivity extends AppCompatActivity {
                     info = jsonResponse.getJSONArray("sparr");
                 lists = info;
             } catch (JSONException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                Alerts.ServerDown(MainActivity.this);
+                return;
             }
             if (locality)
                 GetLocalityArray(info);

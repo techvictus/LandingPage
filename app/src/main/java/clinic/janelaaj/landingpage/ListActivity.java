@@ -28,6 +28,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.support.v7.app.AlertDialog;
@@ -67,7 +68,7 @@ import java.util.Map;
 public class ListActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private ArrayList<Profile> profiles;
-    private String DM_Role, cityName, selectedParam, who, specialitySelectedId;
+    private String DM_Role, cityName, selectedParam, who, specialitySelectedId, whoRadioButton=null;
     double longitude = 0, latitude = 0;
     private Button btnLoadMore;
     private ListView profileListView;
@@ -78,6 +79,7 @@ public class ListActivity extends AppCompatActivity {
     private LatLng point;
     private HashMap<String, LatLng> pointHash;
     private boolean selectedLocationSpinner, selectedSpecialitySpinner;
+    private RadioButton doctorsButton, testLabsButton, pharmaciesButton, vitalsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -443,8 +445,7 @@ public class ListActivity extends AppCompatActivity {
         Log.d("res1234", DM_Role);
         Log.d("res1234", who);
 
-        searchButton = (ImageButton) findViewById(R.id.search_button_list_activity);
-
+        searchButton = findViewById(R.id.search_button_list_activity);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -452,6 +453,8 @@ public class ListActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Please select your locality or speciality!", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if(doctorsButton!=null)
+                    who = whoRadioButton;
                 Intent profileListIntent = new Intent(ListActivity.this, ListActivity.class);
                 profileListIntent.putExtra("CityName", cityName);
                 profileListIntent.putExtra("SpecialitySelectedId", specialitySelectedId);
@@ -516,54 +519,26 @@ public class ListActivity extends AppCompatActivity {
         url = Endpoints.BASE_URL + Endpoints.GET_DOCTORS_BY_LOCATION;
 //        ConnectionAsyncTask task = new ConnectionAsyncTask();
         NetworkStuff(url);
-//        task.execute(url, jsString);
-//        JSONObject doctorsList = null;
-//        try {
-//            doctorsList = ConnectionUtil.postMethod(url, js.toString());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
 
-//        JSONArray ldoctorid = null;
-//        try {
-//            assert doctorsList != null;
-//            ldoctorid = doctorsList.getJSONArray("info");
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        ArrayList<Profile> profiles = new ArrayList<>();
-//        for (int i = 0; i < ldoctorid.length(); i++) {
-//            JSONObject result = null;
-//            try {
-//                result = ldoctorid.getJSONObject(i);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            assert result != null;
-//            String profileName = result.optString("ldoctorname");
-//            profiles.add(new Profile(profileName));
-//        }
-//        ImageView inbox = (ImageView) findViewById(R.id.inbox);
-//        inbox.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent landingPageIntent = new Intent(ListActivity.this, MainActivity.class);
-//                startActivity(landingPageIntent);
-//            }
-//        });
-//
-////        profiles.add(new Profile("a"));
-////        profiles.add(new Profile("b"));
-////        profiles.add(new Profile("c"));
-////        profiles.add(new Profile("d"));
-////        profiles.add(new Profile("e"));
-////        profiles.add(new Profile("f"));
-////        profiles.add(new Profile("g"));
-//        ProfileAdapter adapter = new ProfileAdapter(this, profiles);
-//        ListView profileListView = (ListView) findViewById(R.id.list);
-//        profileListView.setAdapter(adapter);
+        doctorsButton = findViewById(R.id.doctors_button);
+        testLabsButton = findViewById(R.id.test_labs_button);
+        pharmaciesButton = findViewById(R.id.pharmacies_button);
+        vitalsButton = findViewById(R.id.vitals_button);
+
+        doctorsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                whoRadioButton = "Doctors";
+            }
+        });
+
+        vitalsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                whoRadioButton = "Vitals";
+                specialitySpinner.setVisibility(View.GONE);
+            }
+        });
 
         final ImageView expandListButton = (ImageView) findViewById(R.id.custom_down_arrow);
         final LinearLayout expandList = (LinearLayout) findViewById(R.id.drop_down_two);
@@ -572,6 +547,7 @@ public class ListActivity extends AppCompatActivity {
         expandListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                whoRadioButton = "Doctors";
                 expandList.setVisibility(View.VISIBLE);
                 expandListButton.setVisibility(View.GONE);
                 collapseListButton.setVisibility(View.VISIBLE);
@@ -582,6 +558,7 @@ public class ListActivity extends AppCompatActivity {
         collapseListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                whoRadioButton = null;
                 expandList.setVisibility(View.GONE);
                 expandListButton.setVisibility(View.VISIBLE);
                 collapseListButton.setVisibility(View.GONE);
