@@ -37,6 +37,8 @@ import android.widget.Toast;
 
 
 import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
@@ -716,54 +718,62 @@ public class ListActivity extends AppCompatActivity {
 
     private void NetworkStuff(String url) {
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                response -> {
-                    try {
-                        profiles = new ArrayList<>();
-                        JSONArray ldoctorid = new JSONObject(response).getJSONArray("info");
-                        Log.d("abcde", "info " + ldoctorid);
-                        for (int i = 0; i < ldoctorid.length(); i++) {
-                            JSONObject obj = null;
-                            obj = ldoctorid.optJSONObject(i);
-                            Log.d("abcde", "hai kya " + String.valueOf(obj));
-                            assert obj != null;
-                            String doctorId = obj.optString("ldoctorid");
-                            String doctorName = obj.optString("ldoctorname");
-                            String doctorGender = obj.optString("lgender");
-                            String doctorExperience = obj.optString("lexperience");
-                            String doctorSpeciality = obj.optString("lspecialityname");
-                            String image = obj.optString("ldoctorphoto");
-                            //image = resizeBase64Image(image);
-                            byte[] decodedString = Base64.decode(image, Base64.DEFAULT);
-                            Bitmap doctorphoto = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                            //doctorImage.setImageBitmap(decodedByte);
-                            String mbbsflag = obj.optString("lmbbsflag");
-                            String mdflag = obj.optString("lmdflag");
-                            String msflag = obj.optString("lmsflag");
-                            String cliniclocationname = obj.optString("lcliniclocationname");
-                            String addressline1 = obj.optString("laddressline1");
-                            String addressline2 = obj.optString("laddressline2");
-                            String city = obj.optString("lcity");
-                            String pincode = obj.optString("lpincode");
-                            String rating = obj.optString("lrating");
-                            String normalamount = obj.optString("lnormalamount");
-                            String discountedamount = obj.optString("ldiscountedamount");
-                            String discountflag = obj.optString("ldiscountflag");
-                            Log.d("abcde", doctorId + doctorName + doctorGender + doctorExperience + doctorSpeciality + doctorphoto + mbbsflag + mdflag + msflag + cliniclocationname + addressline1 + addressline2 + city + pincode + rating + normalamount + discountedamount + discountflag);
-                            profiles.add(new Profile(doctorId, doctorName, doctorGender, doctorExperience, doctorSpeciality, doctorphoto, mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
-                        }
-                        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.list);
-                        // set a LinearLayoutManager with default horizontal orientation and false value for reverseLayout to show the items from start to end
-                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.VERTICAL,false);
-                        recyclerView.setLayoutManager(linearLayoutManager);
-                        // call the constructor of CustomAdapter to send the reference and data to Adapter
-                        ProfileAdapter customAdapter = new ProfileAdapter(ListActivity.this, profiles);
-                        recyclerView.setAdapter(customAdapter); // set the Adapter to RecyclerView
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            profiles = new ArrayList<>();
+                            JSONArray ldoctorid = new JSONObject(response).getJSONArray("info");
+                            Log.d("abcde", "info " + ldoctorid);
+                            for (int i = 0; i < ldoctorid.length(); i++) {
+                                JSONObject obj = null;
+                                obj = ldoctorid.optJSONObject(i);
+                                Log.d("abcde", "hai kya " + String.valueOf(obj));
+                                assert obj != null;
+                                String doctorId = obj.optString("ldoctorid");
+                                String doctorName = obj.optString("ldoctorname");
+                                String doctorGender = obj.optString("lgender");
+                                String doctorExperience = obj.optString("lexperience");
+                                String doctorSpeciality = obj.optString("lspecialityname");
+                                String image = obj.optString("ldoctorphoto");
+                                //image = resizeBase64Image(image);
+                                byte[] decodedString = Base64.decode(image, Base64.DEFAULT);
+                                Bitmap doctorphoto = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                //doctorImage.setImageBitmap(decodedByte);
+                                String mbbsflag = obj.optString("lmbbsflag");
+                                String mdflag = obj.optString("lmdflag");
+                                String msflag = obj.optString("lmsflag");
+                                String cliniclocationname = obj.optString("lcliniclocationname");
+                                String addressline1 = obj.optString("laddressline1");
+                                String addressline2 = obj.optString("laddressline2");
+                                String city = obj.optString("lcity");
+                                String pincode = obj.optString("lpincode");
+                                String rating = obj.optString("lrating");
+                                String normalamount = obj.optString("lnormalamount");
+                                String discountedamount = obj.optString("ldiscountedamount");
+                                String discountflag = obj.optString("ldiscountflag");
+                                Log.d("abcde", doctorId + doctorName + doctorGender + doctorExperience + doctorSpeciality + doctorphoto + mbbsflag + mdflag + msflag + cliniclocationname + addressline1 + addressline2 + city + pincode + rating + normalamount + discountedamount + discountflag);
+                                profiles.add(new Profile(doctorId, doctorName, doctorGender, doctorExperience, doctorSpeciality, doctorphoto, mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
+                            }
+                            RecyclerView recyclerView = (RecyclerView) findViewById(R.id.list);
+                            // set a LinearLayoutManager with default horizontal orientation and false value for reverseLayout to show the items from start to end
+                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.VERTICAL,false);
+                            recyclerView.setLayoutManager(linearLayoutManager);
+                            // call the constructor of CustomAdapter to send the reference and data to Adapter
+                            ProfileAdapter customAdapter = new ProfileAdapter(ListActivity.this, profiles);
+                            recyclerView.setAdapter(customAdapter); // set the Adapter to RecyclerView
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 },
-                Throwable::printStackTrace
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
         ) {
             @Override
             protected Map<String, String> getParams() {
@@ -784,7 +794,6 @@ public class ListActivity extends AppCompatActivity {
         };
         Volley.newRequestQueue(this).add(postRequest);
     }
-
     public String resizeBase64Image(String base64image) {
         byte[] encodeByte = Base64.decode(base64image.getBytes(), Base64.DEFAULT);
         BitmapFactory.Options options = new BitmapFactory.Options();

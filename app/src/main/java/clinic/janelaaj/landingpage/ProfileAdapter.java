@@ -54,14 +54,20 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.MyViewHo
             docName = (TextView) listItemView.findViewById(R.id.doc_name);
             collapse = (RelativeLayout) listItemView.findViewById(R.id.first);
             expand = (LinearLayout) listItemView.findViewById(R.id.list_expand);
-            collapse.setOnClickListener(view -> {
+            collapse.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
 
-                collapse.setVisibility(View.GONE);
-                expand.setVisibility(View.VISIBLE);
+                    collapse.setVisibility(View.GONE);
+                    expand.setVisibility(View.VISIBLE);
+                }
             });
-            expand.setOnClickListener(view -> {
-                collapse.setVisibility(View.VISIBLE);
-                expand.setVisibility(View.GONE);
+            expand.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    collapse.setVisibility(View.VISIBLE);
+                    expand.setVisibility(View.GONE);
+                }
             });
         }
     }
