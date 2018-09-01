@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
                 pharmaciesButton.setChecked(false);
                 vitalsButton.setChecked(false);
 //                Log.d("who","doc "+doctorsButton.isChecked());
-//                Log.d("who","test "+testLabsButton.isChecked());
+//                Log.d("who","ProfileAdapter "+testLabsButton.isChecked());
 //                Log.d("who","phar "+pharmaciesButton.isChecked());
 //                Log.d("who","vit "+vitalsButton.isChecked());
             }
@@ -288,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
                 pharmaciesButton.setChecked(false);
                 vitalsButton.setChecked(false);
 //                Log.d("who","doc "+doctorsButton.isChecked());
-//                Log.d("who","test "+testLabsButton.isChecked());
+//                Log.d("who","ProfileAdapter "+testLabsButton.isChecked());
 //                Log.d("who","phar "+pharmaciesButton.isChecked());
 //                Log.d("who","vit "+vitalsButton.isChecked());
             }
@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
                 testLabsButton.setChecked(false);
                 pharmaciesButton.setChecked(true);
 //                Log.d("who","doc "+doctorsButton.isChecked());
-//                Log.d("who","test "+testLabsButton.isChecked());
+//                Log.d("who","ProfileAdapter "+testLabsButton.isChecked());
 //                Log.d("who","phar "+pharmaciesButton.isChecked());
 //                Log.d("who","vit "+vitalsButton.isChecked());
             }
@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
                 vitalsButton.setChecked(true);
 
 //                Log.d("who","doc "+doctorsButton.isChecked());
-//                Log.d("who","test "+testLabsButton.isChecked());
+//                Log.d("who","ProfileAdapter "+testLabsButton.isChecked());
 //                Log.d("who","phar "+pharmaciesButton.isChecked());
 //                Log.d("who","vit "+vitalsButton.isChecked());
             }
@@ -350,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
                 groupOne.clearCheck();
                 groupTwo.clearCheck();
 //                Log.d("who","doc "+doctorsButton.isChecked());
-//                Log.d("who","test "+testLabsButton.isChecked());
+//                Log.d("who","ProfileAdapter "+testLabsButton.isChecked());
 //                Log.d("who","phar "+pharmaciesButton.isChecked());
 //                Log.d("who","vit "+vitalsButton.isChecked());
             }

@@ -8,13 +8,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
@@ -36,8 +37,6 @@ import android.widget.Toast;
 
 
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
@@ -48,12 +47,8 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.sql.Blob;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -94,14 +89,14 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
-        ImageView inbox = (ImageView) findViewById(R.id.inbox);
-        inbox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent landingPageIntent = new Intent(ListActivity.this, MainActivity.class);
-                startActivity(landingPageIntent);
-            }
-        });
+//        ImageView inbox = (ImageView) findViewById(R.id.inbox);
+//        inbox.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent landingPageIntent = new Intent(ListActivity.this, MainActivity.class);
+//                startActivity(landingPageIntent);
+//            }
+//        });
 
         Intent intent = getIntent();
         cityName = intent.getExtras().getString("CityName");
@@ -716,74 +711,59 @@ public class ListActivity extends AppCompatActivity {
                 String discountflag = obj.optString("ldiscountflag");
                 profiles.add(new Profile(doctorId, doctorName, doctorGender, doctorExperience, doctorSpeciality, doctorphoto, mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
             }
-            ProfileAdapter adapter = new ProfileAdapter(ListActivity.this, profiles);
-            profileListView = (ListView) findViewById(R.id.list);
-            btnLoadMore = new Button(ListActivity.this);
-            btnLoadMore.setText("Load More");
-            profileListView.addFooterView(btnLoadMore);
-            profileListView.setAdapter(adapter);
-
-            if (progressDialog != null) {
-                progressDialog.dismiss();
-                progressDialog = null;
-            }
         }
     }
 
     private void NetworkStuff(String url) {
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            profiles = new ArrayList<>();
-                            JSONArray ldoctorid = new JSONObject(response).getJSONArray("info");
-                            Log.d("abcde", "info " + ldoctorid);
-                            for (int i = 0; i < ldoctorid.length(); i++) {
-                                JSONObject obj = null;
-                                obj = ldoctorid.optJSONObject(i);
-                                Log.d("abcde", "hai kya " + String.valueOf(obj));
-                                assert obj != null;
-                                String doctorId = obj.optString("ldoctorid");
-                                String doctorName = obj.optString("ldoctorname");
-                                String doctorGender = obj.optString("lgender");
-                                String doctorExperience = obj.optString("lexperience");
-                                String doctorSpeciality = obj.optString("lspecialityname");
-                                String image = obj.optString("ldoctorphoto");
-                                //image = resizeBase64Image(image);
-                                byte[] decodedString = Base64.decode(image, Base64.DEFAULT);
-                                Bitmap doctorphoto = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                                //doctorImage.setImageBitmap(decodedByte);
-                                String mbbsflag = obj.optString("lmbbsflag");
-                                String mdflag = obj.optString("lmdflag");
-                                String msflag = obj.optString("lmsflag");
-                                String cliniclocationname = obj.optString("lcliniclocationname");
-                                String addressline1 = obj.optString("laddressline1");
-                                String addressline2 = obj.optString("laddressline2");
-                                String city = obj.optString("lcity");
-                                String pincode = obj.optString("lpincode");
-                                String rating = obj.optString("lrating");
-                                String normalamount = obj.optString("lnormalamount");
-                                String discountedamount = obj.optString("ldiscountedamount");
-                                String discountflag = obj.optString("ldiscountflag");
-                                Log.d("abcde", doctorId + doctorName + doctorGender + doctorExperience + doctorSpeciality + doctorphoto + mbbsflag + mdflag + msflag + cliniclocationname + addressline1 + addressline2 + city + pincode + rating + normalamount + discountedamount + discountflag);
-                                profiles.add(new Profile(doctorId, doctorName, doctorGender, doctorExperience, doctorSpeciality, doctorphoto, mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
-                            }
-                            ProfileAdapter adapter = new ProfileAdapter(ListActivity.this, profiles);
-                            ListView profileListView = (ListView) findViewById(R.id.list);
-                            profileListView.setAdapter(adapter);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                response -> {
+                    try {
+                        profiles = new ArrayList<>();
+                        JSONArray ldoctorid = new JSONObject(response).getJSONArray("info");
+                        Log.d("abcde", "info " + ldoctorid);
+                        for (int i = 0; i < ldoctorid.length(); i++) {
+                            JSONObject obj = null;
+                            obj = ldoctorid.optJSONObject(i);
+                            Log.d("abcde", "hai kya " + String.valueOf(obj));
+                            assert obj != null;
+                            String doctorId = obj.optString("ldoctorid");
+                            String doctorName = obj.optString("ldoctorname");
+                            String doctorGender = obj.optString("lgender");
+                            String doctorExperience = obj.optString("lexperience");
+                            String doctorSpeciality = obj.optString("lspecialityname");
+                            String image = obj.optString("ldoctorphoto");
+                            //image = resizeBase64Image(image);
+                            byte[] decodedString = Base64.decode(image, Base64.DEFAULT);
+                            Bitmap doctorphoto = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            //doctorImage.setImageBitmap(decodedByte);
+                            String mbbsflag = obj.optString("lmbbsflag");
+                            String mdflag = obj.optString("lmdflag");
+                            String msflag = obj.optString("lmsflag");
+                            String cliniclocationname = obj.optString("lcliniclocationname");
+                            String addressline1 = obj.optString("laddressline1");
+                            String addressline2 = obj.optString("laddressline2");
+                            String city = obj.optString("lcity");
+                            String pincode = obj.optString("lpincode");
+                            String rating = obj.optString("lrating");
+                            String normalamount = obj.optString("lnormalamount");
+                            String discountedamount = obj.optString("ldiscountedamount");
+                            String discountflag = obj.optString("ldiscountflag");
+                            Log.d("abcde", doctorId + doctorName + doctorGender + doctorExperience + doctorSpeciality + doctorphoto + mbbsflag + mdflag + msflag + cliniclocationname + addressline1 + addressline2 + city + pincode + rating + normalamount + discountedamount + discountflag);
+                            profiles.add(new Profile(doctorId, doctorName, doctorGender, doctorExperience, doctorSpeciality, doctorphoto, mbbsflag, mdflag, msflag, cliniclocationname, addressline1, addressline2, city, pincode, rating, normalamount, discountedamount, discountflag));
                         }
+                        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.list);
+                        // set a LinearLayoutManager with default horizontal orientation and false value for reverseLayout to show the items from start to end
+                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.VERTICAL,false);
+                        recyclerView.setLayoutManager(linearLayoutManager);
+                        // call the constructor of CustomAdapter to send the reference and data to Adapter
+                        ProfileAdapter customAdapter = new ProfileAdapter(ListActivity.this, profiles);
+                        recyclerView.setAdapter(customAdapter); // set the Adapter to RecyclerView
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                    }
-                }
+                Throwable::printStackTrace
         ) {
             @Override
             protected Map<String, String> getParams() {
